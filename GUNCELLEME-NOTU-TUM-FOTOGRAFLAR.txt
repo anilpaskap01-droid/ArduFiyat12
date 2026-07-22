@@ -1,0 +1,1 @@
+Tüm ürün görselleri yerel dosya olarak eklendi. PC ürünlerindeki SVG görseller PNG dosyalarına dönüştürüldü ve seed/db yolları güncellendi. Render üzerindeki mevcut veritabanında bulunan ürünlerin imageUrl alanları açılışta otomatik yenilenir.

@@ -1,0 +1,6 @@
+MAĞAZAYA GİT GÜNCELLEMESİ
+
+- Kullanıcı mağazanın arama sayfasına gönderilmez.
+- Sunucu arka planda ilk gerçek ürün bağlantısını çözüp doğrudan ürün sayfasını açar.
+- Çözüm başarısız olursa arama sayfası açılmaz; hata mesajı gösterilir.
+- Bulunan bağlantılar 6 saat önbellekte tutulur.

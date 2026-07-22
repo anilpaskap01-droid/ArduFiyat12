@@ -1,0 +1,10 @@
+services:
+  ardufiyat:
+    build: .
+    ports:
+      - "4173:4173"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
