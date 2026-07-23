@@ -8,6 +8,56 @@ function loadStore(instance) {
   return import(`../src/store.js?persistence-test=${instance}`);
 }
 
+class FakePostgresPool {
+  constructor(state) {
+    this.state = state;
+  }
+
+  async query(sql, params = []) {
+    if (sql.includes('CREATE TABLE')) return { rowCount: 0, rows: [] };
+    if (sql.includes('SELECT data')) {
+      return this.state.main
+        ? { rowCount: 1, rows: [{ data: structuredClone(this.state.main) }] }
+        : { rowCount: 0, rows: [] };
+    }
+    if (sql.includes('INSERT INTO app_state')) {
+      const incoming = JSON.parse(params[0]);
+      const doNothing = sql.includes('DO NOTHING');
+      if (!this.state.main || !doNothing) this.state.main = structuredClone(incoming);
+      return { rowCount: this.state.main ? 1 : 0, rows: [] };
+    }
+    throw new Error(`Beklenmeyen sorgu: ${sql}`);
+  }
+}
+
+test('PostgreSQL preserves a Pro user after restart', async (context) => {
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  process.env.DATABASE_URL = 'postgresql://test:secret@example.test/app';
+  context.after(() => {
+    if (previousDatabaseUrl === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = previousDatabaseUrl;
+  });
+
+  const postgresState = {};
+  const firstServer = await loadStore(`postgres-first-${Date.now()}`);
+  await firstServer.initializeDatabase({ pool: new FakePostgresPool(postgresState) });
+  await firstServer.mutateDb((db) => {
+    db.users.push({
+      id: 'user_postgres_pro',
+      email: 'postgres-pro@example.com',
+      active: true,
+      proActive: true,
+      proExpiresAt: null
+    });
+  });
+
+  const restartedServer = await loadStore(`postgres-restart-${Date.now()}`);
+  await restartedServer.initializeDatabase({ pool: new FakePostgresPool(postgresState) });
+  const user = restartedServer.readDb().users.find((item) => item.id === 'user_postgres_pro');
+  assert.ok(user);
+  assert.equal(user.proActive, true);
+});
+
 test('users and Pro grants survive a store restart', async (context) => {
   const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'ardufiyat-data-'));
   const previousDataDirectory = process.env.ARDUFIYAT_DATA_DIR;

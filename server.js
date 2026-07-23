@@ -12,6 +12,7 @@ import {
   id,
   slugify,
   ensureDatabase,
+  initializeDatabase,
   dataFile,
   persistentDataPathConfigured
 } from './src/store.js';
@@ -43,7 +44,6 @@ const uploadedImagesDir = path.join(publicDir, 'images', 'uploads');
 const imageCacheMaxAgeMs = 7 * 24 * 60 * 60 * 1000;
 const maxRemoteImageBytes = 6 * 1024 * 1024;
 
-ensureDatabase();
 fs.mkdirSync(imageCacheDir, { recursive: true });
 fs.mkdirSync(uploadedImagesDir, { recursive: true });
 
@@ -1336,11 +1336,13 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+await initializeDatabase();
+
 server.listen(port, () => {
   console.log(`ArduFiyat http://localhost:${port}`);
-  console.log(`Veri dosyası: ${dataFile}`);
+  console.log(process.env.DATABASE_URL ? 'Veri deposu: PostgreSQL' : `Veri dosyası: ${dataFile}`);
 
-  if (String(process.env.RENDER).toLowerCase() === 'true' && !persistentDataPathConfigured) {
+  if (!process.env.DATABASE_URL && String(process.env.RENDER).toLowerCase() === 'true' && !persistentDataPathConfigured) {
     console.warn(
       'UYARI: ARDUFIYAT_DATA_DIR ayarlanmadı. Render yeniden başladığında kullanıcı ve Pro verileri kaybolabilir.'
     );

@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from './env.js';
 import { isDirectOfferUrl } from './offer-url.js';
+import pg from 'pg';
 
 loadEnv();
 
@@ -11,22 +12,37 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const bundledDataDirectory = path.join(root, 'data');
 const bundledDatabaseFile = path.join(bundledDataDirectory, 'db.json');
-const configuredDataDirectory = String(process.env.ARDUFIYAT_DATA_DIR || '').trim();
+const databaseUrl = String(process.env.DATABASE_URL || '').trim();
+const configuredDataDirectory = databaseUrl ? '' : String(process.env.ARDUFIYAT_DATA_DIR || '').trim();
 
 export const dataDirectory = configuredDataDirectory
   ? path.resolve(root, configuredDataDirectory)
   : bundledDataDirectory;
-export const persistentDataPathConfigured = Boolean(configuredDataDirectory);
+export const persistentDataPathConfigured = Boolean(databaseUrl || configuredDataDirectory);
+export const postgresConfigured = Boolean(databaseUrl);
 export const dataFile = path.join(dataDirectory, 'db.json');
 export const seedFile = path.join(bundledDataDirectory, 'seed.json');
 
 let writeQueue = Promise.resolve();
+let memoryDatabase = null;
+let pool = null;
+let initialization = null;
 
 async function persistDatabase(nextDb) {
+  if (postgresConfigured) {
+    await pool.query(
+      `INSERT INTO app_state (id, data, updated_at) VALUES ('main', $1::jsonb, NOW())
+       ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()`,
+      [JSON.stringify(nextDb)]
+    );
+    memoryDatabase = structuredClone(nextDb);
+    return;
+  }
   await fs.promises.mkdir(dataDirectory, { recursive: true });
   const temp = `${dataFile}.${process.pid}.${Date.now()}.tmp`;
   await fs.promises.writeFile(temp, `${JSON.stringify(nextDb, null, 2)}\n`, 'utf8');
   await fs.promises.rename(temp, dataFile);
+  memoryDatabase = structuredClone(nextDb);
 }
 
 function migrateDatabaseShape(db) {
@@ -175,7 +191,7 @@ export function pruneInvalidOffers(db, seed) {
   return true;
 }
 
-export function ensureDatabase() {
+function loadLocalDatabase() {
   if (!fs.existsSync(seedFile)) {
     throw new Error(`Başlangıç verisi bulunamadı: ${seedFile}`);
   }
@@ -202,14 +218,60 @@ export function ensureDatabase() {
       db.meta.updatedAt = new Date().toISOString();
       fs.writeFileSync(dataFile, `${JSON.stringify(db, null, 2)}\n`, 'utf8');
     }
+    memoryDatabase = db;
+    return db;
   } catch (error) {
     throw new Error(`Veritabanı okunamadı: ${error.message}`);
   }
 }
 
+export async function initializeDatabase(options = {}) {
+  if (initialization) return initialization;
+  initialization = (async () => {
+    if (!postgresConfigured) return loadLocalDatabase();
+    pool = options.pool || new pg.Pool({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } });
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS app_state (
+        id TEXT PRIMARY KEY,
+        data JSONB NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    let result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
+    if (result.rowCount === 0) {
+      const initialFile = fs.existsSync(bundledDatabaseFile) ? bundledDatabaseFile : seedFile;
+      const initialDb = JSON.parse(await fs.promises.readFile(initialFile, 'utf8'));
+      await pool.query(
+        `INSERT INTO app_state (id, data) VALUES ('main', $1::jsonb) ON CONFLICT (id) DO NOTHING`,
+        [JSON.stringify(initialDb)]
+      );
+      result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
+    }
+    memoryDatabase = result.rows[0].data;
+    const seed = JSON.parse(await fs.promises.readFile(seedFile, 'utf8'));
+    const shapeChanged = migrateDatabaseShape(memoryDatabase);
+    const catalogChanged = mergeMissingSeedRecords(memoryDatabase, seed);
+    const offersChanged = pruneInvalidOffers(memoryDatabase, seed);
+    if (shapeChanged || catalogChanged || offersChanged) {
+      memoryDatabase.meta.updatedAt = new Date().toISOString();
+      await persistDatabase(memoryDatabase);
+    }
+    return memoryDatabase;
+  })();
+  return initialization;
+}
+
+export function ensureDatabase() {
+  if (postgresConfigured) {
+    if (!memoryDatabase) throw new Error('PostgreSQL veritabanı henüz hazırlanmadı.');
+    return;
+  }
+  if (!memoryDatabase) loadLocalDatabase();
+}
+
 export function readDb() {
   ensureDatabase();
-  return JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+  return structuredClone(memoryDatabase);
 }
 
 export function writeDb(nextDb) {
@@ -220,7 +282,8 @@ export function writeDb(nextDb) {
 
 export function mutateDb(mutator) {
   const operation = writeQueue.then(async () => {
-    const db = readDb();
+    ensureDatabase();
+    const db = structuredClone(memoryDatabase);
     const result = await mutator(db);
     db.meta.updatedAt = new Date().toISOString();
     await persistDatabase(db);
