@@ -1,10 +1,10 @@
 # Veri ve Görsel Kaynakları
 
-Bu proje bir demo/başlangıç paketidir. Fiyatlar 22 Temmuz 2026 tarihinde erişilebilen mağaza ürün sayfalarından manuel olarak kaydedilmiş anlık görüntülerdir.
+Bu proje bir demo/başlangıç paketidir. Fiyatlar 22 Temmuz 2026 tarihli anlık görüntülerdir; doğrudan ürün bağlantıları 23 Temmuz 2026 tarihinde yeniden doğrulanmıştır.
 
 ## Katalog
 
-Veri dosyalarında 32 ürün, 20 mağaza/satıcı ve 87 teklif bulunur. Her teklif şu alanları taşır:
+Veri dosyalarında 79 ürün, 24 mağaza/satıcı ve 70 doğrudan ürün teklifi bulunur. Her teklif şu alanları taşır:
 
 - kaynak mağaza ürün bağlantısı
 - fiyat

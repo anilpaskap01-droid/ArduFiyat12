@@ -4,7 +4,7 @@ Arduino ve elektronik ürünler için market tarzı fiyat karşılaştırma uygu
 
 ## Özellikler
 
-- 32 ürün, 20 mağaza ve örnek teklif verileri
+- 79 ürün, 24 mağaza ve doğrulanmış doğrudan ürün teklifleri
 - Ücretsiz planda ürün başına ilk **30 teklif**
 - Pro planda ürüne ait **bütün teklifler**
 - E-posta ve şifre ile kullanıcı kaydı/girişi
@@ -28,6 +28,18 @@ npm.cmd start
 Site: `http://localhost:4173`
 
 Admin paneli: `http://localhost:4173/admin`
+
+## Testler
+
+```powershell
+npm.cmd test
+npm.cmd run test:links
+```
+
+`test:links`; boş/geçersiz URL, arama veya liste sayfası, mağaza alan adı
+uyuşmazlığı, yönlendirme sonrası geçersiz hedef ve HTTP hata durumlarını raporlar.
+Yalnızca çevrimdışı veri kontrolü için `npm.cmd run test:links -- --skip-http`
+kullanılabilir.
 
 ## Kullanıcı hesabı ve Pro verme
 
@@ -53,11 +65,14 @@ Görsel alanı boş bırakılabilir. Yerel görsel için dosyayı `public/images
 
 ## Admin giriş bilgileri
 
-`.env` dosyasında tanımlıdır:
+`ADMIN_EMAIL`, `ADMIN_PASSWORD` ve `TOKEN_SECRET` değerlerini yalnızca yerel `.env`
+dosyanızda veya Render environment variables bölümünde tanımlayın. Gerçek değerleri
+kaynak koda eklemeyin.
 
 ```text
-ADMIN_EMAIL=anilpaskap01@gmail.com
-ADMIN_PASSWORD=Kinqmos12
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+TOKEN_SECRET=
 ```
 
 ## Ürün fotoğrafları

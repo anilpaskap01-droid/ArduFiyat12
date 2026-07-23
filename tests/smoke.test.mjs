@@ -8,6 +8,7 @@ import {
   verifyPassword,
   normalizeEmail
 } from '../src/auth.js';
+import { isDirectOfferUrl } from '../src/offer-url.js';
 
 test('seed data and new collections load', () => {
   const db = readDb();
@@ -18,8 +19,11 @@ test('seed data and new collections load', () => {
   assert.equal(db.settings.adsEnabled, true);
   assert.ok(Array.isArray(db.users));
   assert.ok(db.ads.length >= 3);
-  assert.ok(db.offers.length >= 228);
-  assert.ok(db.offers.every((offer) => offer.url.startsWith('http')));
+  assert.ok(db.offers.length >= 70);
+  assert.ok(db.offers.every((offer) => {
+    const store = db.stores.find((item) => item.id === offer.storeId);
+    return isDirectOfferUrl(offer.url, store?.domain);
+  }));
   assert.ok(db.offers.every((offer) => Number(offer.price) > 0));
 });
 

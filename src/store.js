@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { isDirectOfferUrl } from './offer-url.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -122,6 +123,40 @@ function mergeMissingSeedRecords(db, seed) {
   return changed;
 }
 
+export function pruneInvalidOffers(db, seed) {
+  const retiredOfferIds = new Set(
+    Array.isArray(seed?.meta?.retiredOfferIds) ? seed.meta.retiredOfferIds : []
+  );
+  const storesById = new Map(db.stores.map((store) => [store.id, store]));
+  const removedOfferKeys = new Set();
+  const currentOffers = db.offers;
+
+  db.offers = currentOffers.filter((offer) => {
+    const store = storesById.get(offer?.storeId);
+    const shouldKeep =
+      !retiredOfferIds.has(offer?.id) &&
+      isDirectOfferUrl(offer?.url, store?.domain);
+
+    if (!shouldKeep && offer?.productId && offer?.storeId) {
+      removedOfferKeys.add(`${offer.productId}:${offer.storeId}`);
+    }
+
+    return shouldKeep;
+  });
+
+  if (db.offers.length === currentOffers.length) return false;
+
+  const remainingOfferKeys = new Set(
+    db.offers.map((offer) => `${offer.productId}:${offer.storeId}`)
+  );
+  db.priceHistory = db.priceHistory.filter((entry) => {
+    const key = `${entry?.productId}:${entry?.storeId}`;
+    return !removedOfferKeys.has(key) || remainingOfferKeys.has(key);
+  });
+
+  return true;
+}
+
 export function ensureDatabase() {
   if (!fs.existsSync(seedFile)) {
     throw new Error(`Başlangıç verisi bulunamadı: ${seedFile}`);
@@ -136,7 +171,8 @@ export function ensureDatabase() {
     const seed = JSON.parse(fs.readFileSync(seedFile, 'utf8'));
     const shapeChanged = migrateDatabaseShape(db);
     const catalogChanged = mergeMissingSeedRecords(db, seed);
-    const changed = shapeChanged || catalogChanged;
+    const offersChanged = pruneInvalidOffers(db, seed);
+    const changed = shapeChanged || catalogChanged || offersChanged;
 
     if (changed) {
       db.meta.updatedAt = new Date().toISOString();

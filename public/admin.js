@@ -93,7 +93,7 @@ const configs = {
         null,
         ['in_stock', 'low_stock', 'out_of_stock', 'unknown']
       ],
-      ['url', 'Kaynak URL', 'url', 'full'],
+      ['url', 'Doğrudan ürün URL (arama/liste sayfası kabul edilmez)', 'url', 'full'],
       ['imageUrl', 'Teklif fotoğrafı', 'image-upload', 'full'],
       ['verifiedAt', 'Doğrulama tarihi', 'datetime-local'],
       [

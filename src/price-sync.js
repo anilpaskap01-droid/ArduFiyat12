@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mutateDb, id } from './store.js';
+import { isDirectOfferUrl } from './offer-url.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -47,7 +48,7 @@ export async function runPriceSync(trigger = 'manual') {
       const product = db.products.find((x) => x.sku === row.product_sku);
       const store = db.stores.find((x) => x.slug === row.store_slug);
       const price = Number(String(row.price).replace(',', '.'));
-      if (!product || !store || !Number.isFinite(price) || !row.url?.startsWith('http')) {
+      if (!product || !store || !Number.isFinite(price) || !isDirectOfferUrl(row.url, store?.domain)) {
         skipped += 1;
         errors.push(`Geçersiz satır: ${row.product_sku || '?'} / ${row.store_slug || '?'}`);
         continue;

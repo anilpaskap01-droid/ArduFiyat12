@@ -18,6 +18,7 @@ import {
 } from './src/auth.js';
 import { runPriceSync } from './src/price-sync.js';
 import { syncAllProductImages, ensureLocalProductImage, resolveLocalProductImage } from './src/image-sync.js';
+import { firstOfferUrlIssue, isDirectOfferUrl } from './src/offer-url.js';
 
 loadEnv();
 
@@ -464,7 +465,7 @@ function isValidPublicOffer(db, offer) {
     store?.active &&
     Number.isFinite(price) &&
     price > 0 &&
-    isHttpUrl(offer.url)
+    isDirectOfferUrl(offer.url, store.domain)
   );
 }
 
@@ -524,7 +525,8 @@ function normaliseOffer(db, input, current = {}) {
     return { error: 'Geçerli bir ürün seçin.' };
   }
 
-  if (!db.stores.some((store) => store.id === storeId)) {
+  const store = db.stores.find((item) => item.id === storeId);
+  if (!store) {
     return { error: 'Geçerli bir mağaza seçin.' };
   }
 
@@ -532,8 +534,9 @@ function normaliseOffer(db, input, current = {}) {
     return { error: 'Fiyat sıfırdan büyük olmalıdır.' };
   }
 
-  if (!isHttpUrl(url)) {
-    return { error: 'Geçerli bir mağaza ürün bağlantısı girin.' };
+  const urlIssue = firstOfferUrlIssue(url, store.domain);
+  if (urlIssue) {
+    return { error: urlIssue.message };
   }
 
   if (!isValidImageReference(merged.imageUrl)) {
@@ -623,88 +626,6 @@ async function createOrUpdateOffer(req, res, itemId = null) {
     ...saved,
     updatedExisting
   });
-}
-
-
-const resolvedOfferUrlCache = new Map();
-
-function isStoreSearchUrl(rawUrl) {
-  try {
-    const parsed = new URL(rawUrl);
-    const path = parsed.pathname.toLowerCase();
-    return parsed.searchParams.has('q') || parsed.searchParams.has('k') || path.includes('/arama') || path.includes('/ara') || path.includes('/search');
-  } catch {
-    return false;
-  }
-}
-
-function absoluteStoreUrl(baseUrl, href) {
-  try {
-    const candidate = new URL(href, baseUrl);
-    if (!['http:', 'https:'].includes(candidate.protocol)) return '';
-    candidate.hash = '';
-    return candidate.toString();
-  } catch {
-    return '';
-  }
-}
-
-function extractFirstProductUrl(searchUrl, html) {
-  const host = new URL(searchUrl).hostname.replace(/^www\./, '').toLowerCase();
-  const decoded = String(html || '').replace(/&amp;/g, '&');
-  const patterns = [];
-
-  if (host.includes('amazon.com.tr')) {
-    patterns.push(/href="([^"]*\/dp\/[A-Z0-9]{10}[^"]*)"/i, /href="([^"]*\/gp\/product\/[A-Z0-9]{10}[^"]*)"/i);
-  } else if (host.includes('hepsiburada.com')) {
-    patterns.push(/href="([^"]*-p-(?:HBCV|HBV|m-HBCV|m-HBV)[^"]*)"/i, /href="([^"]*\/[^"?#]+-p-[^"?#]+)"/i);
-  } else if (host.includes('vatanbilgisayar.com')) {
-    patterns.push(/href="(\/[^"?#]+\/[^"?#]+\.html)"/i, /href="(\/[^"?#]+-\d+\.html)"/i);
-  } else if (host.includes('trendyol.com')) {
-    patterns.push(/href="([^"]+-p-\d+[^"]*)"/i);
-  } else if (host.includes('teknosa.com')) {
-    patterns.push(/href="([^"]+-p-\d+[^"]*)"/i);
-  } else if (host.includes('mediamarkt.com.tr')) {
-    patterns.push(/href="([^"]*\/tr\/product\/[^"]+)"/i);
-  }
-
-  for (const pattern of patterns) {
-    const match = decoded.match(pattern);
-    if (!match?.[1]) continue;
-    const result = absoluteStoreUrl(searchUrl, match[1]);
-    if (result && !isStoreSearchUrl(result)) return result;
-  }
-  return '';
-}
-
-async function resolveDirectProductUrl(offer) {
-  const originalUrl = String(offer?.url || '').trim();
-  if (!originalUrl || !isStoreSearchUrl(originalUrl)) return originalUrl;
-
-  const cached = resolvedOfferUrlCache.get(offer.id);
-  if (cached && cached.expiresAt > Date.now()) return cached.url;
-
-  try {
-    const response = await fetch(originalUrl, {
-      redirect: 'follow',
-      signal: AbortSignal.timeout(9000),
-      headers: {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/150 Safari/537.36',
-        'accept-language': 'tr-TR,tr;q=0.9,en;q=0.8',
-        accept: 'text/html,application/xhtml+xml'
-      }
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const html = await response.text();
-    const directUrl = extractFirstProductUrl(originalUrl, html);
-    if (!directUrl) throw new Error('Ürün bağlantısı bulunamadı');
-
-    resolvedOfferUrlCache.set(offer.id, { url: directUrl, expiresAt: Date.now() + 6 * 60 * 60 * 1000 });
-    return directUrl;
-  } catch (error) {
-    console.error(`Doğrudan ürün bağlantısı çözülemedi (${offer.id}):`, error.message);
-    return '';
-  }
 }
 
 async function apiRouter(req, res, url) {
@@ -962,12 +883,7 @@ async function apiRouter(req, res, url) {
       if (target) target.clicks = Number(target.clicks || 0) + 1;
     });
 
-    const directProductUrl = await resolveDirectProductUrl(offer);
-    if (!directProductUrl) {
-      return text(res, 502, 'Bu mağazada doğrudan ürün sayfası şu anda bulunamadı. Arama sayfasına yönlendirme yapılmadı.');
-    }
-
-    return redirect(res, directProductUrl);
+    return redirect(res, offer.url);
   }
 
   if (method === 'POST' && url.pathname === '/api/admin/login') {

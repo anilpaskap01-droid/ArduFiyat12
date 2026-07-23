@@ -1,6 +1,6 @@
 MAĞAZAYA GİT GÜNCELLEMESİ
 
 - Kullanıcı mağazanın arama sayfasına gönderilmez.
-- Sunucu arka planda ilk gerçek ürün bağlantısını çözüp doğrudan ürün sayfasını açar.
-- Çözüm başarısız olursa arama sayfası açılmaz; hata mesajı gösterilir.
-- Bulunan bağlantılar 6 saat önbellekte tutulur.
+- Arama, kategori, etiket ve mağaza ana sayfası bağlantıları teklif olarak kabul edilmez.
+- Sunucu yalnızca kayıtlı ve mağaza alan adıyla eşleşen doğrudan ürün sayfasını açar.
+- Geçerli doğrudan bağlantısı bulunmayan teklif kullanıcıya gösterilmez.
