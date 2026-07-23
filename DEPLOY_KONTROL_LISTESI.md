@@ -25,13 +25,13 @@ deploy sonrasında kullanıcı hesabını ve Pro yetkisini bir kez yeniden oluş
 Environment bölümüne gerçek değerleri yalnızca Render üzerinden ekleyin:
 
 ```text
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5.6-luna
-OPENAI_PRICE_BATCH_SIZE=4
-OPENAI_PRICE_BATCH_DELAY_MS=350
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_PRICE_BATCH_SIZE=8
+GEMINI_PRICE_BATCH_DELAY_MS=350
 ```
 
-Admin panelindeki **ChatGPT ile Hızlı Yenile** düğmesi yalnızca doğrudan ürün
+Admin panelindeki **Gemini ile Fiyat/Stok Yenile** düğmesi yalnızca doğrudan ürün
 sayfalarını kontrol eder. Erişilemeyen veya güvenle doğrulanamayan teklifleri değiştirmez.
 Stok dışı doğrulanan teklif yalnızca ilgili ürünün mağaza listesinde pasifleşir.
 
@@ -46,5 +46,5 @@ TOKEN_SECRET=
 SMTP_USER=
 SMTP_PASS=
 GOOGLE_CLIENT_ID=
-OPENAI_API_KEY=
+GEMINI_API_KEY=
 ```

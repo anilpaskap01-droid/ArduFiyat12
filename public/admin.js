@@ -925,7 +925,7 @@ function updateGeminiControls(job = null) {
 
   geminiButtons().forEach((button) => {
     const defaultLabel = button.dataset.defaultLabel || 'Gemini ile Fiyatları Yenile';
-    button.disabled = !configured || running;
+    button.disabled = running;
     button.title = configured
       ? 'Doğrudan ürün sayfalarını Gemini URL Context ile kontrol eder.'
       : 'Render Environment bölümüne GEMINI_API_KEY ekleyin.';
@@ -980,18 +980,13 @@ async function pollGeminiSync({ silent = false } = {}) {
 }
 
 async function refreshOffersWithGemini() {
-  const gemini = state.data?.integrations?.gemini;
-  if (!gemini?.configured) {
-    toast('Önce Render Environment bölümüne GEMINI_API_KEY ekleyin.');
-    return;
-  }
-
   const offerCount = Number(state.data?.counts?.offers || 0);
   if (!confirm(`${offerCount} teklif Gemini ile kontrol edilecek. Bu işlem API kotası kullanır ve birkaç dakika sürebilir. Devam edilsin mi?`)) {
     return;
   }
 
   try {
+    toast('Gemini bağlantısı kontrol ediliyor...');
     const { job } = await api('/api/admin/offers/gemini-refresh', {
       method: 'POST',
       body: '{}'
