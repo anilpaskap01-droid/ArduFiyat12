@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { readDb, mutateDb, id } from './store.js';
 import { isDirectOfferUrl } from './offer-url.js';
 
-const defaultModel = 'gemini-2.5-flash';
+const defaultModel = 'gemini-3.6-flash';
 const maximumBatchSize = 20;
 const minimumPriceConfidence = 0.8;
 const minimumOutOfStockConfidence = 0.9;
@@ -24,8 +24,16 @@ function batchDelayMs() {
   return numberFromEnvironment('GEMINI_PRICE_BATCH_DELAY_MS', 350, 0, 5000);
 }
 
+export function resolveGeminiModel(value) {
+  const requested = String(value || '').trim();
+  if (!requested || ['gemini-2.5-flash', 'models/gemini-2.5-flash'].includes(requested)) {
+    return defaultModel;
+  }
+  return requested;
+}
+
 function modelName() {
-  return String(process.env.GEMINI_MODEL || defaultModel).trim() || defaultModel;
+  return resolveGeminiModel(process.env.GEMINI_MODEL);
 }
 
 function cloneJob(job = currentJob) {

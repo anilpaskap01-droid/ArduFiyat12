@@ -57,7 +57,7 @@ Pro anahtarı veya demo kodu kullanılmaz.
 
 1. Google AI Studio üzerinden Gemini API anahtarı oluşturun.
 2. Render **Environment** bölümüne `GEMINI_API_KEY` değerini ekleyin.
-3. Varsayılan model `gemini-2.5-flash` olarak kullanılır.
+3. Varsayılan model `gemini-3.6-flash` olarak kullanılır.
 4. Admin panelinde **Gemini ile Fiyat/Stok Yenile** düğmesine basın.
 
 Gemini yalnızca kayıtlı doğrudan ürün detay URL'lerini URL Context ile inceler. Ürün

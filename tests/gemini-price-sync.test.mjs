@@ -5,6 +5,7 @@ import {
   buildGenerateContentRequest,
   buildGeminiPricePrompt,
   parseGeminiPriceResponse,
+  resolveGeminiModel,
   successfulGeminiUrls
 } from '../src/gemini-price-sync.js';
 
@@ -104,7 +105,7 @@ test('GenerateContent parsing keeps URL Context retrieval evidence', () => {
 });
 
 test('GenerateContent request uses the supported URL Context shape', () => {
-  const request = buildGenerateContentRequest('gemini-2.5-flash', [{
+  const request = buildGenerateContentRequest('gemini-3.6-flash', [{
     offerId: 'offer_price',
     productName: 'Arduino Uno',
     storeName: 'Example Store',
@@ -116,6 +117,11 @@ test('GenerateContent request uses the supported URL Context shape', () => {
   assert.equal(request.config.responseJsonSchema, undefined);
   assert.equal(request.config.responseMimeType, undefined);
   assert.equal(Array.isArray(request.contents), true);
+});
+
+test('retired Gemini 2.5 Flash configuration upgrades automatically', () => {
+  assert.equal(resolveGeminiModel('gemini-2.5-flash'), 'gemini-3.6-flash');
+  assert.equal(resolveGeminiModel('models/gemini-2.5-flash'), 'gemini-3.6-flash');
 });
 
 test('verified prices update and out-of-stock offers leave the storefront', () => {
