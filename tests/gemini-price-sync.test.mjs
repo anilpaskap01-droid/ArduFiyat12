@@ -5,6 +5,7 @@ import {
   buildGenerateContentRequest,
   buildGeminiPricePrompt,
   parseGeminiPriceResponse,
+  normalizeOfferLimit,
   resolveGeminiModel,
   successfulGeminiUrls
 } from '../src/gemini-price-sync.js';
@@ -62,9 +63,9 @@ function createDatabase() {
 }
 
 const targets = [
-  { offerId: 'offer_price', url: firstUrl },
-  { offerId: 'offer_stock', url: secondUrl },
-  { offerId: 'offer_uncertain', url: thirdUrl }
+  { offerId: 'offer_price', productName: 'Arduino Uno', storeName: 'Example Store', url: firstUrl },
+  { offerId: 'offer_stock', productName: 'Arduino Nano', storeName: 'Example Store', url: secondUrl },
+  { offerId: 'offer_uncertain', productName: 'ESP32', storeName: 'Example Store', url: thirdUrl }
 ];
 
 test('Gemini interaction parsing keeps URL retrieval evidence', () => {
@@ -122,6 +123,13 @@ test('GenerateContent request uses the supported URL Context shape', () => {
 test('retired Gemini 2.5 Flash configuration upgrades automatically', () => {
   assert.equal(resolveGeminiModel('gemini-2.5-flash'), 'gemini-3.6-flash');
   assert.equal(resolveGeminiModel('models/gemini-2.5-flash'), 'gemini-3.6-flash');
+});
+
+test('offer limit stays within the supported range', () => {
+  assert.equal(normalizeOfferLimit(undefined), 20);
+  assert.equal(normalizeOfferLimit(35), 35);
+  assert.equal(normalizeOfferLimit(0), 20);
+  assert.equal(normalizeOfferLimit(999), 200);
 });
 
 test('verified prices update and out-of-stock offers leave the storefront', () => {
@@ -189,7 +197,14 @@ test('verified prices update and out-of-stock offers leave the storefront', () =
     deactivated: 1,
     reactivated: 0,
     unchanged: 0,
-    skipped: 1
+    skipped: 1,
+    changes: [{
+      offerId: 'offer_price',
+      productName: 'Arduino Uno',
+      storeName: 'Example Store',
+      previousPrice: 100,
+      nextPrice: 125.5
+    }]
   });
 });
 

@@ -1035,7 +1035,8 @@ async function apiRouter(req, res, url) {
 
   if (method === 'POST' && url.pathname === '/api/admin/offers/gemini-refresh') {
     try {
-      const job = startGeminiPriceSync();
+      const body = await readBody(req);
+      const job = startGeminiPriceSync({ limit: body.limit });
       return json(res, job.status === 'running' ? 202 : 200, { job });
     } catch (error) {
       if (error?.code === 'GEMINI_NOT_CONFIGURED') {

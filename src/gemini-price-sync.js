@@ -32,6 +32,10 @@ export function resolveGeminiModel(value) {
   return requested;
 }
 
+export function normalizeOfferLimit(value) {
+  return Math.min(200, Math.max(1, Math.round(Number(value) || 20)));
+}
+
 function modelName() {
   return resolveGeminiModel(process.env.GEMINI_MODEL);
 }
@@ -47,7 +51,8 @@ function cloneJob(job = currentJob) {
 
   return {
     ...job,
-    errors: [...job.errors]
+    errors: [...job.errors],
+    changes: [...(job.changes || [])]
   };
 }
 
@@ -217,7 +222,8 @@ export function applyGeminiPriceResults(db, targets, results, successfulUrls, ve
     deactivated: 0,
     reactivated: 0,
     unchanged: 0,
-    skipped: 0
+    skipped: 0,
+    changes: []
   };
 
   for (const target of targets) {
@@ -295,6 +301,13 @@ export function applyGeminiPriceResults(db, targets, results, successfulUrls, ve
         capturedAt: verifiedAt
       });
       summary.priceChanged += 1;
+      summary.changes.push({
+        offerId: offer.id,
+        productName: target.productName,
+        storeName: target.storeName,
+        previousPrice,
+        nextPrice
+      });
     }
 
     if (wasGeminiOutOfStock) summary.reactivated += 1;
@@ -370,7 +383,7 @@ async function writeFinalSyncLog(job) {
 
 async function runGeminiJob(job, apiKey) {
   const client = new GoogleGenAI({ apiKey });
-  const targets = syncTargets(readDb());
+  const targets = syncTargets(readDb()).slice(0, job.limit);
   const batches = splitIntoBatches(targets, batchSize());
   job.total = targets.length;
 
@@ -397,6 +410,7 @@ async function runGeminiJob(job, apiKey) {
       for (const key of ['updated', 'priceChanged', 'deactivated', 'reactivated', 'unchanged', 'skipped']) {
         job[key] += batchSummary[key];
       }
+      job.changes.push(...batchSummary.changes);
     } catch (error) {
       job.skipped += targetsInBatch.length;
       job.failedBatches += 1;
@@ -431,7 +445,7 @@ export function getGeminiPriceSyncJob() {
   return cloneJob();
 }
 
-export function startGeminiPriceSync() {
+export function startGeminiPriceSync(options = {}) {
   if (currentJobPromise) return cloneJob();
 
   const apiKey = String(process.env.GEMINI_API_KEY || '').trim();
@@ -441,6 +455,7 @@ export function startGeminiPriceSync() {
     throw error;
   }
 
+  const limit = normalizeOfferLimit(options.limit);
   currentJob = {
     id: id('gemini_sync'),
     status: 'running',
@@ -456,7 +471,9 @@ export function startGeminiPriceSync() {
     unchanged: 0,
     skipped: 0,
     failedBatches: 0,
-    errors: []
+    errors: [],
+    changes: [],
+    limit
   };
 
   currentJobPromise = runGeminiJob(currentJob, apiKey)
