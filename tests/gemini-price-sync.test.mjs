@@ -84,6 +84,24 @@ test('Gemini interaction parsing keeps URL retrieval evidence', () => {
   ]), /Never use search results/);
 });
 
+test('GenerateContent parsing keeps URL Context retrieval evidence', () => {
+  const results = [{ offerId: 'offer_price' }];
+  const response = {
+    text: JSON.stringify({ results }),
+    candidates: [{
+      urlContextMetadata: {
+        urlMetadata: [{
+          retrievedUrl: firstUrl,
+          urlRetrievalStatus: 'URL_RETRIEVAL_STATUS_SUCCESS'
+        }]
+      }
+    }]
+  };
+
+  assert.deepEqual(parseGeminiPriceResponse(response), results);
+  assert.equal(successfulGeminiUrls(response).has(firstUrl), true);
+});
+
 test('verified prices update and out-of-stock offers leave the storefront', () => {
   const db = createDatabase();
   const interaction = interactionFor([
