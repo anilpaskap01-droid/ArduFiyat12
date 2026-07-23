@@ -21,7 +21,6 @@ Arduino ve elektronik ürünler için market tarzı fiyat karşılaştırma uygu
 Windows PowerShell içinde:
 
 ```powershell
-Copy-Item .env.example .env
 npm.cmd install
 npm.cmd start
 ```
@@ -29,6 +28,8 @@ npm.cmd start
 Site: `http://localhost:4173`
 
 Admin paneli: `http://localhost:4173/admin`
+
+Ortam değişkenleri yerel sistemden veya Render Environment bölümünden sağlanır; `.env` dosyaları deploy edilmez.
 
 ## Testler
 
