@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   applyGeminiPriceResults,
+  buildGenerateContentRequest,
   buildGeminiPricePrompt,
   parseGeminiPriceResponse,
   successfulGeminiUrls
@@ -100,6 +101,21 @@ test('GenerateContent parsing keeps URL Context retrieval evidence', () => {
 
   assert.deepEqual(parseGeminiPriceResponse(response), results);
   assert.equal(successfulGeminiUrls(response).has(firstUrl), true);
+});
+
+test('GenerateContent request uses the supported URL Context shape', () => {
+  const request = buildGenerateContentRequest('gemini-2.5-flash', [{
+    offerId: 'offer_price',
+    productName: 'Arduino Uno',
+    storeName: 'Example Store',
+    url: firstUrl,
+    currentPriceTry: 100
+  }]);
+
+  assert.deepEqual(request.config.tools, [{ urlContext: {} }]);
+  assert.equal(request.config.responseJsonSchema, undefined);
+  assert.equal(request.config.responseMimeType, undefined);
+  assert.equal(Array.isArray(request.contents), true);
 });
 
 test('verified prices update and out-of-stock offers leave the storefront', () => {
