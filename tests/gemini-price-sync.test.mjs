@@ -5,7 +5,6 @@ import {
   buildGenerateContentRequest,
   buildGeminiPricePrompt,
   parseGeminiPriceResponse,
-  normalizeOfferLimit,
   resolveGeminiModel,
   successfulGeminiUrls
 } from '../src/gemini-price-sync.js';
@@ -125,13 +124,6 @@ test('retired Gemini 2.5 Flash configuration upgrades automatically', () => {
   assert.equal(resolveGeminiModel('models/gemini-2.5-flash'), 'gemini-3.6-flash');
 });
 
-test('offer limit stays within the supported range', () => {
-  assert.equal(normalizeOfferLimit(undefined), 20);
-  assert.equal(normalizeOfferLimit(35), 35);
-  assert.equal(normalizeOfferLimit(0), 20);
-  assert.equal(normalizeOfferLimit(999), 200);
-});
-
 test('verified prices update and out-of-stock offers leave the storefront', () => {
   const db = createDatabase();
   const interaction = interactionFor([
@@ -204,6 +196,12 @@ test('verified prices update and out-of-stock offers leave the storefront', () =
       storeName: 'Example Store',
       previousPrice: 100,
       nextPrice: 125.5
+    }],
+    outOfStockOffers: [{
+      offerId: 'offer_stock',
+      productName: 'Arduino Nano',
+      storeName: 'Example Store',
+      url: secondUrl
     }]
   });
 });

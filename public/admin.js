@@ -267,7 +267,6 @@ function renderDashboard() {
           </div>
         `}
         <div class="sync-actions">
-          <label>Kontrol edilecek teklif <input id="geminiOfferLimit" type="number" min="1" max="200" value="${esc(localStorage.getItem('geminiOfferLimit') || '20')}" style="width:82px;padding:9px;border:1px solid var(--line);border-radius:10px"></label>
           <button class="gemini-btn" id="dashGeminiSync" data-default-label="Gemini ile Fiyat/Stok Yenile">Gemini ile Fiyat/Stok Yenile</button>
           <button class="secondary-btn" id="dashSync">CSV Dosyasını İşle</button>
         </div>
@@ -278,7 +277,6 @@ function renderDashboard() {
 
   $('#dashSync').onclick = refreshOffers;
   $('#dashGeminiSync').onclick = refreshOffersWithGemini;
-  $('#geminiOfferLimit').onchange = (event) => localStorage.setItem('geminiOfferLimit', event.target.value);
   updateGeminiControls();
 }
 
@@ -929,6 +927,14 @@ function geminiChanges(job) {
   ).join('')}</div>`;
 }
 
+function geminiOutOfStockOffers(job) {
+  const offers = Array.isArray(job?.outOfStockOffers) ? job.outOfStockOffers : [];
+  if (!offers.length) return '';
+  return `<div style="display:grid;gap:5px;margin-top:8px"><b>Stokta olmayan teklifler</b>${offers.map((offer) =>
+    `<span>${esc(offer.productName || offer.offerId)} · ${esc(offer.storeName || '')}</span>`
+  ).join('')}</div>`;
+}
+
 function updateGeminiControls(job = null) {
   const configured = Boolean(state.data?.integrations?.gemini?.configured);
   const running = job?.status === 'running';
@@ -949,7 +955,7 @@ function updateGeminiControls(job = null) {
     progress.classList.toggle('hidden', !job || job.status === 'idle');
     progress.classList.toggle('warning', job?.status === 'completed_with_warnings' || job?.status === 'failed');
     progress.innerHTML = job && job.status !== 'idle'
-      ? `<b>${job.status === 'running' ? 'Kontrol sürüyor' : 'Son kontrol'}</b><span>${esc(geminiSummary(job))}</span>${geminiChanges(job)}`
+      ? `<b>${job.status === 'running' ? 'Kontrol sürüyor' : 'Son kontrol'}</b><span>${esc(geminiSummary(job))}</span>${geminiChanges(job)}${geminiOutOfStockOffers(job)}`
       : '';
   }
 }
@@ -991,10 +997,7 @@ async function pollGeminiSync({ silent = false } = {}) {
 
 async function refreshOffersWithGemini() {
   const offerCount = Number(state.data?.counts?.offers || 0);
-  const requestedLimit = Math.min(200, Math.max(1, Math.round(Number($('#geminiOfferLimit')?.value || localStorage.getItem('geminiOfferLimit') || 20))));
-  localStorage.setItem('geminiOfferLimit', String(requestedLimit));
-  const selectedCount = Math.min(offerCount, requestedLimit);
-  if (!confirm(`${selectedCount} teklif Gemini ile kontrol edilecek. Bu işlem API kotası kullanır. Devam edilsin mi?`)) {
+  if (!confirm(`Tüm ${offerCount} teklif Gemini ile kontrol edilecek. Bu işlem API kotası kullanır. Devam edilsin mi?`)) {
     return;
   }
 
@@ -1002,7 +1005,7 @@ async function refreshOffersWithGemini() {
     toast('Gemini bağlantısı kontrol ediliyor...');
     const { job } = await api('/api/admin/offers/gemini-refresh', {
       method: 'POST',
-      body: JSON.stringify({ limit: requestedLimit })
+      body: '{}'
     });
     state.geminiWasRunning = true;
     updateGeminiControls(job);
