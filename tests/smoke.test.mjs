@@ -1,7 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import path from 'node:path';
 import { readDb, slugify } from '../src/store.js';
 import {
   signToken,
@@ -14,7 +12,7 @@ import { isDirectOfferUrl } from '../src/offer-url.js';
 
 test('seed data and new collections load', () => {
   const db = readDb();
-  assert.ok(db.products.length >= 79);
+  assert.ok(db.products.length >= 32);
   assert.ok(db.stores.length >= 24);
   assert.equal(db.settings.freeOfferLimit, 30);
   assert.equal(db.settings.proOfferLimit, 0);
@@ -29,14 +27,12 @@ test('seed data and new collections load', () => {
   assert.ok(db.offers.every((offer) => Number(offer.price) > 0));
 });
 
-test('PC catalog products use bundled PNG images', () => {
+test('PC catalog products and categories are removed', () => {
   const db = readDb();
   const pcProducts = db.products.filter((product) => product.id.startsWith('prd_pc_'));
-  assert.equal(pcProducts.length, 47);
-  for (const product of pcProducts) {
-    assert.equal(product.imageUrl, `/images/products/${product.id}.png`);
-    assert.equal(fs.existsSync(path.resolve('public', product.imageUrl.replace(/^\//, ''))), true);
-  }
+  assert.equal(pcProducts.length, 0);
+  assert.equal(db.categories.some((category) => category.id === 'cat_cpu'), false);
+  assert.equal(db.categories.some((category) => category.id === 'cat_gpu'), false);
 });
 
 test('slugify handles Turkish characters', () => {

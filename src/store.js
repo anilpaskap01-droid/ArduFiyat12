@@ -105,6 +105,12 @@ function migrateDatabaseShape(db) {
 
 function mergeMissingSeedRecords(db, seed) {
   let changed = false;
+  const retiredProductPrefixes = Array.isArray(seed?.meta?.retiredProductPrefixes)
+    ? seed.meta.retiredProductPrefixes
+    : [];
+  const retiredCategoryIds = new Set(
+    Array.isArray(seed?.meta?.retiredCategoryIds) ? seed.meta.retiredCategoryIds : []
+  );
   const collections = [
     'categories',
     'products',
@@ -122,6 +128,11 @@ function mergeMissingSeedRecords(db, seed) {
     const existingIds = new Set(current.map((item) => item?.id).filter(Boolean));
 
     for (const item of incoming) {
+      const isRetiredProduct =
+        collection === 'products' &&
+        retiredProductPrefixes.some((prefix) => String(item?.id || '').startsWith(prefix));
+      const isRetiredCategory = collection === 'categories' && retiredCategoryIds.has(item?.id);
+      if (isRetiredProduct || isRetiredCategory) continue;
       if (item?.id && !existingIds.has(item.id)) {
         current.push(item);
         existingIds.add(item.id);
@@ -155,6 +166,32 @@ function mergeMissingSeedRecords(db, seed) {
   }
 
   return changed;
+}
+
+function pruneRetiredCatalog(db, seed) {
+  const retiredProductPrefixes = Array.isArray(seed?.meta?.retiredProductPrefixes)
+    ? seed.meta.retiredProductPrefixes
+    : [];
+  const retiredCategoryIds = new Set(
+    Array.isArray(seed?.meta?.retiredCategoryIds) ? seed.meta.retiredCategoryIds : []
+  );
+  const retiredProductIds = new Set(
+    db.products
+      .filter((product) =>
+        retiredProductPrefixes.some((prefix) => String(product?.id || '').startsWith(prefix))
+      )
+      .map((product) => product.id)
+  );
+
+  if (!retiredProductIds.size && !db.categories.some((category) => retiredCategoryIds.has(category.id))) {
+    return false;
+  }
+
+  db.products = db.products.filter((product) => !retiredProductIds.has(product.id));
+  db.categories = db.categories.filter((category) => !retiredCategoryIds.has(category.id));
+  db.offers = db.offers.filter((offer) => !retiredProductIds.has(offer.productId));
+  db.priceHistory = db.priceHistory.filter((entry) => !retiredProductIds.has(entry.productId));
+  return true;
 }
 
 export function pruneInvalidOffers(db, seed) {
@@ -211,8 +248,9 @@ function loadLocalDatabase() {
     const seed = JSON.parse(fs.readFileSync(seedFile, 'utf8'));
     const shapeChanged = migrateDatabaseShape(db);
     const catalogChanged = mergeMissingSeedRecords(db, seed);
+    const retiredCatalogChanged = pruneRetiredCatalog(db, seed);
     const offersChanged = pruneInvalidOffers(db, seed);
-    const changed = shapeChanged || catalogChanged || offersChanged;
+    const changed = shapeChanged || catalogChanged || retiredCatalogChanged || offersChanged;
 
     if (changed) {
       db.meta.updatedAt = new Date().toISOString();
@@ -251,8 +289,9 @@ export async function initializeDatabase(options = {}) {
     const seed = JSON.parse(await fs.promises.readFile(seedFile, 'utf8'));
     const shapeChanged = migrateDatabaseShape(memoryDatabase);
     const catalogChanged = mergeMissingSeedRecords(memoryDatabase, seed);
+    const retiredCatalogChanged = pruneRetiredCatalog(memoryDatabase, seed);
     const offersChanged = pruneInvalidOffers(memoryDatabase, seed);
-    if (shapeChanged || catalogChanged || offersChanged) {
+    if (shapeChanged || catalogChanged || retiredCatalogChanged || offersChanged) {
       memoryDatabase.meta.updatedAt = new Date().toISOString();
       await persistDatabase(memoryDatabase);
     }
