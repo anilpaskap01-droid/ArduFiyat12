@@ -52,12 +52,12 @@ kullanılabilir.
 
 Pro anahtarı veya demo kodu kullanılmaz.
 
-## Gemini ile teklif fiyatı ve stok yenileme
+## OpenAI ile hızlı fiyat ve stok yenileme
 
 1. Google AI Studio üzerinden Gemini API anahtarı oluşturun.
-2. Render **Environment** bölümüne `GEMINI_API_KEY` değerini ekleyin.
-3. İsterseniz modeli `GEMINI_MODEL=gemini-3.5-flash` ile değiştirin.
-4. Admin panelinde **Gemini ile Fiyatları Yenile** düğmesine basın.
+2. Render **Environment** bölümüne `OPENAI_API_KEY` değerini ekleyin.
+3. Varsayılan hızlı model `gpt-5.6-luna` olarak kullanılır.
+4. Admin panelinde **ChatGPT ile Hızlı Yenile** düğmesine basın.
 
 Gemini yalnızca kayıtlı doğrudan ürün detay URL'lerini URL Context ile inceler. Ürün
 eşleşmesi, sayfa erişimi, TRY fiyatı ve güven seviyesi doğrulanmadan veriyi değiştirmez.

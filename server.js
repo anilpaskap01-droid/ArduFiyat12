@@ -27,10 +27,10 @@ import {
 } from './src/auth.js';
 import { runPriceSync } from './src/price-sync.js';
 import {
-  getGeminiPriceSyncConfig,
-  getGeminiPriceSyncJob,
-  startGeminiPriceSync
-} from './src/gemini-price-sync.js';
+  getOpenAIPriceSyncConfig,
+  getOpenAIPriceSyncJob,
+  startOpenAIPriceSync
+} from './src/openai-price-sync.js';
 import { syncAllProductImages, ensureLocalProductImage, resolveLocalProductImage } from './src/image-sync.js';
 import { firstOfferUrlIssue, isDirectOfferUrl } from './src/offer-url.js';
 
@@ -75,7 +75,8 @@ const allowedSourceTypes = new Set([
   'merchant_csv',
   'official_api',
   'admin_import',
-  'gemini_url_context'
+  'gemini_url_context',
+  'openai_web_search'
 ]);
 
 function send(res, status, body, headers = {}) {
@@ -965,7 +966,7 @@ async function apiRouter(req, res, url) {
       },
       settings: db.settings,
       integrations: {
-        gemini: getGeminiPriceSyncConfig(),
+        openai: getOpenAIPriceSyncConfig(),
         persistentDataPathConfigured
       }
     });
@@ -1029,16 +1030,16 @@ async function apiRouter(req, res, url) {
     return json(res, 200, readDb().settings);
   }
 
-  if (method === 'GET' && url.pathname === '/api/admin/offers/gemini-refresh') {
-    return json(res, 200, { job: getGeminiPriceSyncJob() });
+  if (method === 'GET' && url.pathname === '/api/admin/offers/openai-refresh') {
+    return json(res, 200, { job: getOpenAIPriceSyncJob() });
   }
 
-  if (method === 'POST' && url.pathname === '/api/admin/offers/gemini-refresh') {
+  if (method === 'POST' && url.pathname === '/api/admin/offers/openai-refresh') {
     try {
-      const job = startGeminiPriceSync();
+      const job = startOpenAIPriceSync();
       return json(res, job.status === 'running' ? 202 : 200, { job });
     } catch (error) {
-      if (error?.code === 'GEMINI_NOT_CONFIGURED') {
+      if (error?.code === 'OPENAI_NOT_CONFIGURED') {
         return json(res, 503, { error: error.message });
       }
       throw error;
