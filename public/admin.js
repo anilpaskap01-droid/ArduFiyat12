@@ -926,7 +926,7 @@ function updateGeminiControls(job = null) {
 
   geminiButtons().forEach((button) => {
     const defaultLabel = button.dataset.defaultLabel || 'ChatGPT ile Hızlı Yenile';
-    button.disabled = !configured || running;
+    button.disabled = running;
     button.title = configured
       ? 'Ürün sayfalarını OpenAI web aramasıyla hızlı modda kontrol eder.'
       : 'Render Environment bölümüne OPENAI_API_KEY ekleyin.';
