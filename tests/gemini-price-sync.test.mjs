@@ -1,13 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  applyOpenAIPriceResults,
-  buildOpenAIConnectionRequest,
-  buildOpenAIRequest,
-  buildOpenAIPricePrompt,
-  parseOpenAIPriceResponse,
-  successfulOpenAIUrls
-} from '../src/openai-price-sync.js';
+  applyGeminiPriceResults,
+  buildGenerateContentRequest,
+  buildGeminiPricePrompt,
+  parseGeminiPriceResponse,
+  successfulGeminiUrls
+} from '../src/gemini-price-sync.js';
 
 const firstUrl = 'https://store.example.com/products/arduino-uno';
 const secondUrl = 'https://store.example.com/products/arduino-nano';
@@ -16,14 +15,12 @@ const thirdUrl = 'https://store.example.com/products/esp32';
 function interactionFor(results, urls = [firstUrl, secondUrl, thirdUrl]) {
   return {
     output_text: JSON.stringify({ results }),
-    output: [{
-      type: 'message',
-      content: [{
-        type: 'output_text',
-        text: JSON.stringify({ results }),
-        annotations: urls.map((url) => ({ type: 'url_citation', url }))
-      }]
-    }]
+    steps: [
+      {
+        type: 'url_context_result',
+        result: urls.map((url) => ({ url, status: 'success' }))
+      }
+    ]
   };
 }
 
@@ -69,13 +66,13 @@ const targets = [
   { offerId: 'offer_uncertain', url: thirdUrl }
 ];
 
-test('OpenAI response parsing keeps URL citation evidence', () => {
+test('Gemini interaction parsing keeps URL retrieval evidence', () => {
   const results = [{ offerId: 'offer_price' }];
   const interaction = interactionFor(results, [firstUrl]);
 
-  assert.deepEqual(parseOpenAIPriceResponse(interaction), results);
-  assert.equal(successfulOpenAIUrls(interaction).size, 1);
-  assert.match(buildOpenAIPricePrompt([
+  assert.deepEqual(parseGeminiPriceResponse(interaction), results);
+  assert.equal(successfulGeminiUrls(interaction).size, 1);
+  assert.match(buildGeminiPricePrompt([
     {
       offerId: 'offer_price',
       productName: 'Arduino Uno',
@@ -85,22 +82,29 @@ test('OpenAI response parsing keeps URL citation evidence', () => {
       url: firstUrl,
       currentPriceTry: 100
     }
-  ]), /Never substitute a search result/);
+  ]), /Never use search results/);
 });
 
-test('Responses parsing keeps web search citation evidence', () => {
+test('GenerateContent parsing keeps URL Context retrieval evidence', () => {
   const results = [{ offerId: 'offer_price' }];
   const response = {
-    output_text: JSON.stringify({ results }),
-    output: [{ content: [{ annotations: [{ type: 'url_citation', url: firstUrl }] }] }]
+    text: JSON.stringify({ results }),
+    candidates: [{
+      urlContextMetadata: {
+        urlMetadata: [{
+          retrievedUrl: firstUrl,
+          urlRetrievalStatus: 'URL_RETRIEVAL_STATUS_SUCCESS'
+        }]
+      }
+    }]
   };
 
-  assert.deepEqual(parseOpenAIPriceResponse(response), results);
-  assert.equal(successfulOpenAIUrls(response).has(firstUrl), true);
+  assert.deepEqual(parseGeminiPriceResponse(response), results);
+  assert.equal(successfulGeminiUrls(response).has(firstUrl), true);
 });
 
-test('Responses request uses fast mode and web search', () => {
-  const request = buildOpenAIRequest('gpt-5.6-luna', [{
+test('GenerateContent request uses the supported URL Context shape', () => {
+  const request = buildGenerateContentRequest('gemini-2.5-flash', [{
     offerId: 'offer_price',
     productName: 'Arduino Uno',
     storeName: 'Example Store',
@@ -108,17 +112,10 @@ test('Responses request uses fast mode and web search', () => {
     currentPriceTry: 100
   }]);
 
-  assert.deepEqual(request.tools, [{ type: 'web_search' }]);
-  assert.equal(request.tool_choice, 'required');
-  assert.equal(request.reasoning.effort, 'low');
-});
-
-test('connection check uses a minimal fast response', () => {
-  const request = buildOpenAIConnectionRequest('gpt-5.6-luna');
-  assert.equal(request.input, 'Reply with OK.');
-  assert.equal(request.max_output_tokens, 16);
-  assert.equal(request.reasoning.effort, 'low');
-  assert.equal(request.tools, undefined);
+  assert.deepEqual(request.config.tools, [{ urlContext: {} }]);
+  assert.equal(request.config.responseJsonSchema, undefined);
+  assert.equal(request.config.responseMimeType, undefined);
+  assert.equal(Array.isArray(request.contents), true);
 });
 
 test('verified prices update and out-of-stock offers leave the storefront', () => {
@@ -160,11 +157,11 @@ test('verified prices update and out-of-stock offers leave the storefront', () =
   ]);
   const verifiedAt = '2026-07-23T12:00:00.000Z';
 
-  const summary = applyOpenAIPriceResults(
+  const summary = applyGeminiPriceResults(
     db,
     targets,
-    parseOpenAIPriceResponse(interaction),
-    successfulOpenAIUrls(interaction),
+    parseGeminiPriceResponse(interaction),
+    successfulGeminiUrls(interaction),
     verifiedAt
   );
 
@@ -173,11 +170,11 @@ test('verified prices update and out-of-stock offers leave the storefront', () =
   const uncertain = db.offers.find((offer) => offer.id === 'offer_uncertain');
 
   assert.equal(updated.price, 125.5);
-  assert.equal(updated.sourceType, 'openai_web_search');
+  assert.equal(updated.sourceType, 'gemini_url_context');
   assert.equal(db.priceHistory.length, 1);
   assert.equal(outOfStock.active, false);
   assert.equal(outOfStock.stock, 'out_of_stock');
-  assert.equal(outOfStock.deactivatedReason, 'openai_out_of_stock');
+  assert.equal(outOfStock.deactivatedReason, 'gemini_out_of_stock');
   assert.equal(db.stores.length, 1);
   assert.equal(uncertain.price, 300);
   assert.deepEqual(summary, {
@@ -190,7 +187,7 @@ test('verified prices update and out-of-stock offers leave the storefront', () =
   });
 });
 
-test('an AI-hidden offer can return when stock comes back', () => {
+test('a Gemini-hidden offer can return when stock comes back', () => {
   const db = createDatabase();
   const offer = db.offers.find((item) => item.id === 'offer_stock');
   offer.active = false;
@@ -211,11 +208,11 @@ test('an AI-hidden offer can return when stock comes back', () => {
     }
   ], [secondUrl]);
 
-  const summary = applyOpenAIPriceResults(
+  const summary = applyGeminiPriceResults(
     db,
     [{ offerId: 'offer_stock', url: secondUrl }],
-    parseOpenAIPriceResponse(interaction),
-    successfulOpenAIUrls(interaction),
+    parseGeminiPriceResponse(interaction),
+    successfulGeminiUrls(interaction),
     '2026-07-23T13:00:00.000Z'
   );
 

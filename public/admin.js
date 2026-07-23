@@ -211,7 +211,7 @@ function render() {
 
 function renderDashboard() {
   const counts = state.data.counts;
-  const openai = state.data.integrations?.openai || {};
+  const gemini = state.data.integrations?.gemini || {};
   const persistentDataPathConfigured = Boolean(
     state.data.integrations?.persistentDataPathConfigured
   );
@@ -248,17 +248,17 @@ function renderDashboard() {
       </div>
 
       <div class="sync-card">
-        <span class="eyebrow">OPENAI FİYAT RADARI</span>
+        <span class="eyebrow">GEMINI FİYAT RADARI</span>
         <h3>Gerçek fiyat ve stok kontrolü</h3>
         <p>
-          ChatGPT web araması doğrudan ürün sayfalarını inceler. Yalnızca doğrulanan fiyatları
+          Gemini URL Context doğrudan ürün sayfalarını inceler. Yalnızca doğrulanan fiyatları
           kaydeder; stokta olmayan teklifleri vitrinden kaldırır.
         </p>
-        <div class="integration-state ${openai.configured ? 'ready' : 'missing'}">
+        <div class="integration-state ${gemini.configured ? 'ready' : 'missing'}">
           <i></i>
-          <span>${openai.configured
-            ? `${esc(openai.model)} hızlı mod hazır`
-            : 'OPENAI_API_KEY tanımlı değil'}</span>
+          <span>${gemini.configured
+            ? `${esc(gemini.model)} hazır`
+            : 'GEMINI_API_KEY tanımlı değil'}</span>
         </div>
         ${persistentDataPathConfigured ? '' : `
           <div class="storage-warning">
@@ -267,16 +267,16 @@ function renderDashboard() {
           </div>
         `}
         <div class="sync-actions">
-          <button class="primary-btn" id="dashOpenAISync" data-default-label="ChatGPT ile Hızlı Yenile">ChatGPT ile Hızlı Yenile</button>
+          <button class="gemini-btn" id="dashGeminiSync" data-default-label="Gemini ile Fiyat/Stok Yenile">Gemini ile Fiyat/Stok Yenile</button>
           <button class="secondary-btn" id="dashSync">CSV Dosyasını İşle</button>
         </div>
-        <div id="openaiSyncProgress" class="gemini-progress hidden"></div>
+        <div id="geminiSyncProgress" class="gemini-progress hidden"></div>
       </div>
     </div>
   `;
 
   $('#dashSync').onclick = refreshOffers;
-  $('#dashOpenAISync').onclick = refreshOffersWithOpenAI;
+  $('#dashGeminiSync').onclick = refreshOffersWithGemini;
   updateGeminiControls();
 }
 
@@ -305,7 +305,7 @@ function renderTable(collection) {
   }[collection];
 
   const refreshButton = collection === 'offers'
-    ? '<button class="secondary-btn compact-btn" id="tableRefreshOffers">CSV Yenile</button><button class="primary-btn compact-btn" id="tableOpenAISync" data-default-label="ChatGPT ile Hızlı Yenile">ChatGPT ile Hızlı Yenile</button>'
+    ? '<button class="secondary-btn compact-btn" id="tableRefreshOffers">CSV Yenile</button><button class="gemini-btn compact-btn" id="tableGeminiSync" data-default-label="Gemini ile Yenile">Gemini ile Yenile</button>'
     : '';
 
   $('#adminContent').innerHTML = `
@@ -364,7 +364,7 @@ function renderTable(collection) {
   });
 
   $('#tableRefreshOffers')?.addEventListener('click', refreshOffers);
-  $('#tableOpenAISync')?.addEventListener('click', refreshOffersWithOpenAI);
+  $('#tableGeminiSync')?.addEventListener('click', refreshOffersWithGemini);
   updateGeminiControls();
 }
 
@@ -901,9 +901,9 @@ async function refreshOffers() {
 
 function geminiButtons() {
   return [
-    $('#openaiSyncButton'),
-    $('#dashOpenAISync'),
-    $('#tableOpenAISync')
+    $('#geminiSyncButton'),
+    $('#dashGeminiSync'),
+    $('#tableGeminiSync')
   ].filter(Boolean);
 }
 
@@ -912,30 +912,29 @@ function terminalGeminiStatus(status) {
 }
 
 function geminiSummary(job) {
-  if (!job || job.status === 'idle') return 'Henüz OpenAI güncellemesi başlatılmadı.';
+  if (!job || job.status === 'idle') return 'Henüz Gemini güncellemesi başlatılmadı.';
   if (job.status === 'running') {
     return `${job.processed || 0}/${job.total || 0} teklif kontrol edildi · ${job.priceChanged || 0} fiyat değişti · ${job.deactivated || 0} stok dışı teklif gizlendi`;
   }
-  const error = Array.isArray(job.errors) && job.errors[0] ? ` · Hata: ${job.errors[0]}` : '';
-  return `${job.priceChanged || 0} fiyat değişti · ${job.deactivated || 0} stok dışı teklif gizlendi · ${job.reactivated || 0} teklif yeniden açıldı · ${job.skipped || 0} teklif atlandı${error}`;
+  return `${job.priceChanged || 0} fiyat değişti · ${job.deactivated || 0} stok dışı teklif gizlendi · ${job.reactivated || 0} teklif yeniden açıldı · ${job.skipped || 0} teklif atlandı`;
 }
 
 function updateGeminiControls(job = null) {
-  const configured = Boolean(state.data?.integrations?.openai?.configured);
+  const configured = Boolean(state.data?.integrations?.gemini?.configured);
   const running = job?.status === 'running';
 
   geminiButtons().forEach((button) => {
-    const defaultLabel = button.dataset.defaultLabel || 'ChatGPT ile Hızlı Yenile';
-    button.disabled = running;
+    const defaultLabel = button.dataset.defaultLabel || 'Gemini ile Fiyatları Yenile';
+    button.disabled = !configured || running;
     button.title = configured
-      ? 'Ürün sayfalarını OpenAI web aramasıyla hızlı modda kontrol eder.'
-      : 'Render Environment bölümüne OPENAI_API_KEY ekleyin.';
+      ? 'Doğrudan ürün sayfalarını Gemini URL Context ile kontrol eder.'
+      : 'Render Environment bölümüne GEMINI_API_KEY ekleyin.';
     button.textContent = running
-      ? `OpenAI ${job.processed || 0}/${job.total || 0}`
+      ? `Gemini ${job.processed || 0}/${job.total || 0}`
       : defaultLabel;
   });
 
-  const progress = $('#openaiSyncProgress');
+  const progress = $('#geminiSyncProgress');
   if (progress) {
     progress.classList.toggle('hidden', !job || job.status === 'idle');
     progress.classList.toggle('warning', job?.status === 'completed_with_warnings' || job?.status === 'failed');
@@ -953,13 +952,13 @@ function scheduleGeminiPoll() {
 }
 
 async function pollGeminiSync({ silent = false } = {}) {
-  if (!state.token || !state.data?.integrations?.openai?.configured) {
+  if (!state.token || !state.data?.integrations?.gemini?.configured) {
     updateGeminiControls();
     return;
   }
 
   try {
-    const { job } = await api('/api/admin/offers/openai-refresh');
+    const { job } = await api('/api/admin/offers/gemini-refresh');
     updateGeminiControls(job);
 
     if (job.status === 'running') {
@@ -980,21 +979,26 @@ async function pollGeminiSync({ silent = false } = {}) {
   }
 }
 
-async function refreshOffersWithOpenAI() {
+async function refreshOffersWithGemini() {
+  const gemini = state.data?.integrations?.gemini;
+  if (!gemini?.configured) {
+    toast('Önce Render Environment bölümüne GEMINI_API_KEY ekleyin.');
+    return;
+  }
+
   const offerCount = Number(state.data?.counts?.offers || 0);
-  if (!confirm(`${offerCount} teklif ChatGPT hızlı mod ile kontrol edilecek. Bu işlem API kotası kullanır. Devam edilsin mi?`)) {
+  if (!confirm(`${offerCount} teklif Gemini ile kontrol edilecek. Bu işlem API kotası kullanır ve birkaç dakika sürebilir. Devam edilsin mi?`)) {
     return;
   }
 
   try {
-    toast('OpenAI bağlantısı kontrol ediliyor...');
-    const { job } = await api('/api/admin/offers/openai-refresh', {
+    const { job } = await api('/api/admin/offers/gemini-refresh', {
       method: 'POST',
       body: '{}'
     });
     state.geminiWasRunning = true;
     updateGeminiControls(job);
-    toast('OpenAI fiyat ve stok kontrolü hızlı modda başladı.');
+    toast('Gemini fiyat ve stok kontrolü arka planda başladı.');
     scheduleGeminiPoll();
   } catch (error) {
     toast(error.message);
@@ -1041,7 +1045,7 @@ function logout() {
 }
 
 $('#imageSyncButton').onclick = () => syncImages(false);
-$('#openaiSyncButton').onclick = refreshOffersWithOpenAI;
+$('#geminiSyncButton').onclick = refreshOffersWithGemini;
 
 $('#loginForm').onsubmit = async (event) => {
   event.preventDefault();
