@@ -136,8 +136,16 @@ function mergeMissingSeedRecords(db, seed) {
         const seededItem = incomingById.get(currentItem?.id);
         if (!seededItem) continue;
         const nextImageUrl = seededItem.imageUrl || '';
-        if (nextImageUrl && currentItem.imageUrl !== nextImageUrl) {
-          currentItem.imageUrl = nextImageUrl;
+        const nextImageSourceUrl = seededItem.imageSourceUrl || '';
+        const nextImageCredit = seededItem.imageCredit || '';
+        const imageChanged =
+          (nextImageUrl && currentItem.imageUrl !== nextImageUrl) ||
+          (nextImageSourceUrl && currentItem.imageSourceUrl !== nextImageSourceUrl) ||
+          (nextImageCredit && currentItem.imageCredit !== nextImageCredit);
+        if (imageChanged) {
+          currentItem.imageUrl = nextImageUrl || currentItem.imageUrl;
+          currentItem.imageSourceUrl = nextImageSourceUrl || currentItem.imageSourceUrl;
+          currentItem.imageCredit = nextImageCredit || currentItem.imageCredit;
           currentItem.updatedAt = new Date().toISOString();
           changed = true;
         }

@@ -4,7 +4,7 @@
     "createdAt": "2026-07-22T09:00:00.000Z",
     "updatedAt": "2026-07-23T11:25:30.296Z",
     "seedNote": "Yaln?zca do?rulanm?? do?rudan ?r?n detay sayfalar? teklif olarak tutulur; arama, kategori ve ma?aza ana sayfas? ba?lant?lar? g?sterilmez.",
-    "catalogVersion": "2026-07-24-pc-parts-v2",
+    "catalogVersion": "2026-07-24-pc-parts-v3",
     "retiredOfferIds": [
       "off_esp_dn",
       "off_lcd_rs",
@@ -1101,8 +1101,8 @@
       "createdAt": "2026-07-24T12:00:00.000Z",
       "updatedAt": "2026-07-24T12:00:00.000Z",
       "imageUrl": "/images/products/prd_pc_ryzen_7800x3d.png",
-      "imageSourceUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1201",
-      "imageCredit": "LoremFlickr / Flickr Creative Commons ürün fotoğrafı"
+      "imageSourceUrl": "https://www.amd.com/content/dam/amd/en/images/products/processors/ryzen/2505503-ryzen-7-7800x3d-og.jpg",
+      "imageCredit": "AMD resmi ürün görseli"
     },
     {
       "id": "prd_pc_i7_14700kf",
@@ -1118,8 +1118,8 @@
       "createdAt": "2026-07-24T12:00:00.000Z",
       "updatedAt": "2026-07-24T12:00:00.000Z",
       "imageUrl": "/images/products/prd_pc_i7_14700kf.png",
-      "imageSourceUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1202",
-      "imageCredit": "LoremFlickr / Flickr Creative Commons ürün fotoğrafı"
+      "imageSourceUrl": "https://tech4gamers.com/wp-content/uploads/2024/01/Intel-Core-i7-14700KF-scaled.jpg",
+      "imageCredit": "Tech4Gamers Intel Core i7-14700KF ürün fotoğrafı"
     },
     {
       "id": "prd_pc_rtx_4070_super",
@@ -1135,8 +1135,8 @@
       "createdAt": "2026-07-24T12:00:00.000Z",
       "updatedAt": "2026-07-24T12:00:00.000Z",
       "imageUrl": "/images/products/prd_pc_rtx_4070_super.png",
-      "imageSourceUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1203",
-      "imageCredit": "LoremFlickr / Flickr Creative Commons ürün fotoğrafı"
+      "imageSourceUrl": "https://www.nvidia.com/content/dam/en-zz/Solutions/geforce/graphic-cards/40-series/rtx-4070-4070ti/geforce-rtx-4070-super-og-1200x630.jpg",
+      "imageCredit": "NVIDIA resmi ürün görseli"
     },
     {
       "id": "prd_pc_rx_7900_gre",
@@ -1152,8 +1152,8 @@
       "createdAt": "2026-07-24T12:00:00.000Z",
       "updatedAt": "2026-07-24T12:00:00.000Z",
       "imageUrl": "/images/products/prd_pc_rx_7900_gre.png",
-      "imageSourceUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1204",
-      "imageCredit": "LoremFlickr / Flickr Creative Commons ürün fotoğrafı"
+      "imageSourceUrl": "https://www.amd.com/content/dam/amd/en/images/products/graphics/2648997-amd-radeon-7900gre.jpg",
+      "imageCredit": "AMD resmi ürün görseli"
     },
     {
       "id": "prd_pc_x670e_wifi",
@@ -1169,8 +1169,8 @@
       "createdAt": "2026-07-24T12:00:00.000Z",
       "updatedAt": "2026-07-24T12:00:00.000Z",
       "imageUrl": "/images/products/prd_pc_x670e_wifi.png",
-      "imageSourceUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1205",
-      "imageCredit": "LoremFlickr / Flickr Creative Commons ürün fotoğrafı"
+      "imageSourceUrl": "https://dlcdnwebimgs.asus.com/gain/ad8d8b21-88f6-47ea-873b-403ad6e70f16/",
+      "imageCredit": "ASUS resmi ürün görseli"
     },
     {
       "id": "prd_pc_z790_ddr5",
@@ -1186,8 +1186,8 @@
       "createdAt": "2026-07-24T12:00:00.000Z",
       "updatedAt": "2026-07-24T12:00:00.000Z",
       "imageUrl": "/images/products/prd_pc_z790_ddr5.png",
-      "imageSourceUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1206",
-      "imageCredit": "LoremFlickr / Flickr Creative Commons ürün fotoğrafı"
+      "imageSourceUrl": "https://storage-asset.msi.cn/global/picture/image/feature/mb/Z790/mpg_z790_carbon_wifi/mpg-z790-carbon-wifi.png",
+      "imageCredit": "MSI resmi ürün görseli"
     },
     {
       "id": "prd_pc_ram_16_ddr4",
