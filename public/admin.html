@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ArduFiyat Admin</title>
+  <link rel="stylesheet" href="/styles.css?v=20260723-pro-gemini1" />
+  <link rel="stylesheet" href="/admin.css?v=20260723-pro-gemini1" />
+</head>
+<body class="admin-body">
+  <section id="loginView" class="login-view">
+    <form id="loginForm" class="login-card">
+      <a class="brand" href="/"><span class="brand-mark">A</span><span>ArduFiyat</span></a>
+      <div><span class="eyebrow">YÖNETİM PANELİ</span><h1>Teklif ve içerik yönetimi</h1><p>Ürün, mağaza, fiyat, kampanya, banner, kupon, stok ve Pro ayarlarını yönetin.</p></div>
+      <label>E-posta<input id="loginEmail" type="email" autocomplete="username" required /></label>
+      <label>Şifre<input id="loginPassword" type="password" placeholder="Admin şifresi" required /></label>
+      <button class="primary-btn" type="submit">Giriş Yap</button>
+      <div id="loginMessage" class="form-message"></div>
+      <small>Varsayılan bilgiler yalnızca yerel geliştirme içindir. Üretimde .env değerlerini değiştirin.</small>
+    </form>
+  </section>
+
+  <div id="adminApp" class="admin-app hidden">
+    <aside class="admin-sidebar">
+      <a class="brand admin-brand" href="/"><span class="brand-mark">A</span><span>ArduFiyat</span></a>
+      <nav id="adminNav">
+        <button data-view="dashboard" class="active">▦ Genel Bakış</button>
+        <button data-view="products">⌘ Ürünler</button>
+        <button data-view="stores">◫ Mağazalar</button>
+        <button data-view="offers">₺ Teklifler</button>
+        <button data-view="users">♙ Kullanıcılar</button>
+        <button data-view="ads">▣ Reklamlar</button>
+        <button data-view="campaigns">✦ Kampanyalar</button>
+        <button data-view="banners">▤ Bannerlar</button>
+        <button data-view="coupons">% Kuponlar</button>
+        <button data-view="settings">⚙ Site & Reklam Ayarları</button>
+        <button data-view="syncLogs">↻ Güncelleme Kayıtları</button>
+      </nav>
+      <div class="sidebar-bottom"><a href="/" target="_blank">Siteyi Aç ↗</a><button id="logoutButton">Çıkış</button></div>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-top"><div><small>YÖNETİM MERKEZİ</small><h1 id="viewTitle">Genel Bakış</h1></div><div class="admin-actions"><button id="imageSyncButton" class="secondary-btn">Fotoğrafları İndir</button><button id="syncButton" class="secondary-btn">CSV Yenile</button><button id="geminiSyncButton" class="gemini-btn" data-default-label="Gemini ile Fiyatları Yenile">Gemini ile Fiyatları Yenile</button><button id="newButton" class="primary-btn hidden">Yeni Kayıt</button></div></header>
+      <section id="adminContent"></section>
+    </main>
+  </div>
+
+  <dialog id="editorDialog" class="editor-dialog"><button class="dialog-close" data-close>×</button><form id="editorForm"><span class="eyebrow" id="editorEyebrow">KAYIT</span><h2 id="editorTitle">Yeni kayıt</h2><div id="editorFields" class="editor-fields"></div><div class="editor-actions"><button type="button" class="secondary-btn" data-close>Vazgeç</button><button type="submit" class="primary-btn">Kaydet</button></div><div id="editorMessage" class="form-message"></div></form></dialog>
+  <div id="toast" class="toast"></div>
+  <script type="module" src="/admin.js?v=20260723-pro-gemini1"></script>
+</body>
+</html>

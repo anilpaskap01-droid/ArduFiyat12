@@ -1,0 +1,1 @@
+Discord botu ve OAuth doğrulaması kaldırıldı. Kullanıcı Discord sunucusuna katıldıktan sonra yönetici admin panelinden manuel Pro verir. Davet: https://discord.gg/gT96uAfuA

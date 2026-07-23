@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Arduino, elektronik, PC parçaları ve oyuncu ekipmanları için fiyat karşılaştırma platformu." />
+  <title>ArduFiyat — Elektronik ve PC Fiyat Karşılaştırma</title>
+  <link rel="stylesheet" href="/styles.css?v=20260722-storefix1" />
+</head>
+<body>
+  <div class="topbar">Doğrulanmış kaynaklar • Şeffaf stok bilgisi • Mağazaya doğrudan yönlendirme</div>
+
+  <header class="site-header">
+    <a class="brand" href="/"><span class="brand-mark">A</span><span>ArduFiyat</span></a>
+
+    <div class="search-wrap">
+      <span>⌕</span>
+      <input id="searchInput" type="search" placeholder="Arduino, ekran kartı, mouse, monitör veya direksiyon seti ara…" autocomplete="off" />
+    </div>
+
+    <div class="header-actions">
+      <button class="ghost-btn" id="proButton">PRO</button>
+      <button class="account-btn" id="accountButton">Giriş Yap</button>
+      <a class="icon-btn" href="/admin" title="Admin paneli">⚙</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero shell">
+      <div class="hero-copy">
+        <div class="eyebrow">AKILLI FİYAT KARŞILAŞTIRMA</div>
+        <h1>Sistemini kur.<br><span>Fazla ödeme.</span></h1>
+        <p>Arduino ve elektronik ürünlerinin yanında işlemci, ekran kartı, monitör, mouse, klavye ve direksiyon setlerini farklı mağazalarda karşılaştır.</p>
+        <div class="hero-actions">
+          <a class="primary-btn" href="#urunler">Ürünleri İncele</a>
+          <button class="secondary-btn" id="heroProButton">Pro Bilgisi</button>
+        </div>
+        <div class="trust-row"><span>✓ Kaynak URL</span><span>✓ Son doğrulama zamanı</span><span>✓ Stok görünümü</span></div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="circuit-card">
+          <div class="chip">ATmega</div>
+          <div class="pin-row"></div>
+          <div class="signal one"></div>
+          <div class="signal two"></div>
+          <div class="price-pill">En ucuz <b id="heroPrice">—</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="topAdSection" class="shell ad-section hidden" aria-label="Reklam">
+      <div id="topAdSlot"></div>
+    </section>
+
+    <section class="shell category-section">
+      <div class="section-head">
+        <div><span class="eyebrow">KATEGORİLER</span><h2>İhtiyacına göre keşfet</h2></div>
+        <div class="live-pill"><i></i><span id="verifiedCount">0</span> doğrulanmış teklif</div>
+      </div>
+      <div id="categoryGrid" class="category-grid"></div>
+    </section>
+
+    <section class="shell stores-section">
+      <div class="section-head">
+        <div><span class="eyebrow">MAĞAZALAR</span><h2>Karşılaştırılan mağazalar</h2></div>
+        <small class="section-note">Admin panelinden eklenen aktif mağazalar burada görünür.</small>
+      </div>
+      <div id="storeGrid" class="store-grid"></div>
+    </section>
+
+    <section id="urunler" class="shell products-section">
+      <div class="section-head">
+        <div><span class="eyebrow">FİYAT RADARI</span><h2>Öne çıkan ürünler</h2></div>
+        <select id="sortSelect">
+          <option value="featured">Önerilen</option>
+          <option value="price-asc">En düşük fiyat</option>
+          <option value="offers-desc">En çok teklif</option>
+          <option value="name">Ada göre</option>
+        </select>
+      </div>
+      <div id="activeFilters" class="filter-row"></div>
+      <div id="productGrid" class="product-grid"></div>
+      <div id="emptyState" class="empty-state hidden">
+        <div>⌕</div><h3>Ürün bulunamadı</h3><p>Arama kelimesini veya kategoriyi değiştir.</p>
+      </div>
+    </section>
+
+    <section id="pro" class="pro-section">
+      <div class="shell pro-card">
+        <div>
+          <span class="eyebrow light">ARDUFİYAT PRO</span>
+          <h2>Bütün teklifler.<br>Sıfır reklam.</h2>
+          <p>Kredi kartıyla güvenli şekilde Pro satın al. Kart bilgileri ArduFiyat sunucusunda tutulmaz.</p>
+        </div>
+        <div class="pro-features">
+          <span>Üründeki bütün teklifler</span>
+          <span>Reklamsız kullanım</span>
+          <span>Fiyat geçmişi altyapısı</span>
+          <span>Kupon görünümü</span>
+        </div>
+        <button class="pro-cta" id="bottomProButton">Pro Satın Al</button>
+      </div>
+    </section>
+
+    <section id="footerAdSection" class="shell ad-section footer-ad-section hidden" aria-label="Reklam">
+      <div id="footerAdSlot"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner">
+      <div><b>ArduFiyat</b><p id="dataPolicy"></p></div>
+      <div><a href="/admin">Admin Paneli</a><a href="/README.md">Kurulum</a></div>
+    </div>
+  </footer>
+
+  <dialog id="productDialog" class="product-dialog">
+    <button class="dialog-close" data-close>×</button>
+    <div id="productDialogContent"></div>
+  </dialog>
+
+  <dialog id="authDialog" class="auth-dialog">
+    <button class="dialog-close" data-close>×</button>
+    <div class="auth-header">
+      <div class="pro-modal-icon">A</div>
+      <h2>ArduFiyat hesabı</h2>
+      <p>Tekliflerini hesabınla görüntüle. Pro erişimi yönetici tarafından hesabına tanımlanır.</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button id="loginTab" class="active" type="button">Giriş Yap</button>
+      <button id="registerTab" type="button">Kayıt Ol</button>
+    </div>
+
+    <div id="googleSignIn" class="google-signin"></div>
+    <div class="auth-divider"><span>veya</span></div>
+
+    <form id="loginUserForm" class="auth-form">
+      <label>E-posta<input id="userLoginEmail" type="email" autocomplete="email" required /></label>
+      <label>Şifre<input id="userLoginPassword" type="password" autocomplete="current-password" required /></label>
+      <button class="primary-btn full" type="submit">Giriş Yap</button>
+    </form>
+
+    <form id="registerUserForm" class="auth-form hidden">
+      <label>Ad<input id="userRegisterName" type="text" minlength="2" maxlength="80" autocomplete="name" required /></label>
+      <label>E-posta<input id="userRegisterEmail" type="email" autocomplete="email" required /></label>
+      <label>Şifre<input id="userRegisterPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" required /></label>
+      <button class="primary-btn full" type="submit">Hesap Oluştur</button>
+    </form>
+
+    <form id="verifyEmailForm" class="auth-form hidden">
+      <p class="verify-help">E-postana gönderilen 6 haneli kodu gir.</p>
+      <label>Doğrulama kodu<input id="emailVerificationCode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required /></label>
+      <button class="primary-btn full" type="submit">E-postayı Doğrula</button>
+      <button id="backToRegister" class="text-btn" type="button">Kayıt ekranına dön</button>
+    </form>
+
+    <div id="authMessage" class="form-message"></div>
+  </dialog>
+
+  <dialog id="accountDialog" class="account-dialog">
+    <button class="dialog-close" data-close>×</button>
+    <div class="pro-modal-icon" id="accountInitial">A</div>
+    <h2 id="accountName">Hesabım</h2>
+    <p id="accountEmail"></p>
+    <div id="accountPlan" class="account-plan"></div>
+    <button class="secondary-btn full" id="logoutUserButton">Çıkış Yap</button>
+  </dialog>
+
+  <dialog id="proDialog" class="pro-dialog">
+    <button class="dialog-close" data-close>×</button>
+    <div class="pro-modal-icon">PRO</div>
+    <h2>Pro erişimi</h2>
+    <p id="proDialogText">Discord sunucumuza katıl. Ardından yönetici hesabını kontrol ederek Pro erişimini ücretsiz açar.</p>
+    <div id="proPlans" class="pro-plan-grid">
+      <a class="pro-plan-option featured" id="discordJoinButton" href="https://discord.gg/gT96uAfuA" target="_blank" rel="noopener"><em>ÜCRETSİZ</em><b>Discord Sunucusuna Katıl</b><strong>0 TL</strong><span>Katıldıktan sonra admin Pro verir</span></a>
+    </div>
+    <div class="payment-safe-note">Sunucuya katıldıktan sonra sitedeki e-posta adresini admine bildir. Admin panelinden Pro erişimi verilir.</div>
+    <div id="paymentMessage" class="form-message"></div>
+    
+    <button class="primary-btn full" id="proDialogAction">Giriş Yap</button>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script type="module" src="/app.js?v=20260722-storefix1"></script>
+</body>
+</html>
