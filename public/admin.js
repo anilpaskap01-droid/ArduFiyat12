@@ -916,7 +916,8 @@ function geminiSummary(job) {
   if (job.status === 'running') {
     return `${job.processed || 0}/${job.total || 0} teklif kontrol edildi · ${job.priceChanged || 0} fiyat değişti · ${job.deactivated || 0} stok dışı teklif gizlendi`;
   }
-  return `${job.priceChanged || 0} fiyat değişti · ${job.deactivated || 0} stok dışı teklif gizlendi · ${job.reactivated || 0} teklif yeniden açıldı · ${job.skipped || 0} teklif atlandı`;
+  const error = Array.isArray(job.errors) && job.errors[0] ? ` · Hata: ${job.errors[0]}` : '';
+  return `${job.priceChanged || 0} fiyat değişti · ${job.deactivated || 0} stok dışı teklif gizlendi · ${job.reactivated || 0} teklif yeniden açıldı · ${job.skipped || 0} teklif atlandı${error}`;
 }
 
 function updateGeminiControls(job = null) {

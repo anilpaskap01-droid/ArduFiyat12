@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   applyOpenAIPriceResults,
+  buildOpenAIConnectionRequest,
   buildOpenAIRequest,
   buildOpenAIPricePrompt,
   parseOpenAIPriceResponse,
@@ -110,6 +111,14 @@ test('Responses request uses fast mode and web search', () => {
   assert.deepEqual(request.tools, [{ type: 'web_search' }]);
   assert.equal(request.tool_choice, 'required');
   assert.equal(request.reasoning.effort, 'low');
+});
+
+test('connection check uses a minimal fast response', () => {
+  const request = buildOpenAIConnectionRequest('gpt-5.6-luna');
+  assert.equal(request.input, 'Reply with OK.');
+  assert.equal(request.max_output_tokens, 16);
+  assert.equal(request.reasoning.effort, 'low');
+  assert.equal(request.tools, undefined);
 });
 
 test('verified prices update and out-of-stock offers leave the storefront', () => {

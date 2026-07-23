@@ -29,7 +29,8 @@ import { runPriceSync } from './src/price-sync.js';
 import {
   getOpenAIPriceSyncConfig,
   getOpenAIPriceSyncJob,
-  startOpenAIPriceSync
+  startOpenAIPriceSync,
+  verifyOpenAIConnection
 } from './src/openai-price-sync.js';
 import { syncAllProductImages, ensureLocalProductImage, resolveLocalProductImage } from './src/image-sync.js';
 import { firstOfferUrlIssue, isDirectOfferUrl } from './src/offer-url.js';
@@ -1036,13 +1037,17 @@ async function apiRouter(req, res, url) {
 
   if (method === 'POST' && url.pathname === '/api/admin/offers/openai-refresh') {
     try {
+      await verifyOpenAIConnection();
       const job = startOpenAIPriceSync();
       return json(res, job.status === 'running' ? 202 : 200, { job });
     } catch (error) {
       if (error?.code === 'OPENAI_NOT_CONFIGURED') {
         return json(res, 503, { error: error.message });
       }
-      throw error;
+      const status = Number(error?.status) || 502;
+      return json(res, status >= 400 && status < 600 ? status : 502, {
+        error: `OpenAI bağlantısı başarısız: ${String(error?.message || error).slice(0, 300)}`
+      });
     }
   }
 

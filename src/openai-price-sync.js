@@ -311,6 +311,26 @@ export function buildOpenAIRequest(model, targets) {
   };
 }
 
+export function buildOpenAIConnectionRequest(model) {
+  return {
+    model,
+    input: 'Reply with OK.',
+    max_output_tokens: 16,
+    reasoning: { effort: 'low' }
+  };
+}
+
+export async function verifyOpenAIConnection() {
+  const apiKey = String(process.env.OPENAI_API_KEY || '').trim();
+  if (!apiKey) {
+    const error = new Error('OPENAI_API_KEY tanımlı değil. Render Environment bölümüne ekleyin.');
+    error.code = 'OPENAI_NOT_CONFIGURED';
+    throw error;
+  }
+  const client = new OpenAI({ apiKey });
+  await client.responses.create(buildOpenAIConnectionRequest(modelName()));
+}
+
 async function createInteraction(client, model, targets) {
   return client.responses.create(buildOpenAIRequest(model, targets));
 }
