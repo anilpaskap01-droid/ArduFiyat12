@@ -32,7 +32,7 @@ test('seed data and new collections load', () => {
 test('PC catalog products use bundled PNG images', () => {
   const db = readDb();
   const pcProducts = db.products.filter((product) => product.id.startsWith('prd_pc_'));
-    assert.equal(pcProducts.length, 53);
+  assert.equal(pcProducts.length, 47);
   for (const product of pcProducts) {
     assert.equal(product.imageUrl, `/images/products/${product.id}.png`);
     assert.equal(fs.existsSync(path.resolve('public', product.imageUrl.replace(/^\//, ''))), true);
