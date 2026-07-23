@@ -4,7 +4,7 @@
     "createdAt": "2026-07-22T09:00:00.000Z",
     "updatedAt": "2026-07-23T11:25:30.296Z",
     "seedNote": "Yaln?zca do?rulanm?? do?rudan ?r?n detay sayfalar? teklif olarak tutulur; arama, kategori ve ma?aza ana sayfas? ba?lant?lar? g?sterilmez.",
-    "catalogVersion": "2026-07-23-direct-offer-links-v1",
+    "catalogVersion": "2026-07-24-pc-local-png-v1",
     "retiredOfferIds": [
       "off_esp_dn",
       "off_lcd_rs",
@@ -900,7 +900,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1033",
+      "imageUrl": "/images/products/prd_pc_ryzen_5600.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1033",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -923,7 +923,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1034",
+      "imageUrl": "/images/products/prd_pc_ryzen_7600.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1034",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -945,7 +945,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1035",
+      "imageUrl": "/images/products/prd_pc_i5_12400f.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,processor,cpu/all?lock=1035",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -969,7 +969,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1036",
+      "imageUrl": "/images/products/prd_pc_rtx_4060.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1036",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -993,7 +993,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1037",
+      "imageUrl": "/images/products/prd_pc_rtx_5060ti.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1037",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1017,7 +1017,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1038",
+      "imageUrl": "/images/products/prd_pc_rx_7800xt.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/graphics,card,gpu/all?lock=1038",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1039,7 +1039,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1039",
+      "imageUrl": "/images/products/prd_pc_b550m.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1039",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1061,7 +1061,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1040",
+      "imageUrl": "/images/products/prd_pc_b650.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1040",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1083,7 +1083,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1041",
+      "imageUrl": "/images/products/prd_pc_b760.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,motherboard/all?lock=1041",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1107,7 +1107,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,memory,ram/all?lock=1042",
+      "imageUrl": "/images/products/prd_pc_ram_16_ddr4.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,memory,ram/all?lock=1042",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1131,7 +1131,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,memory,ram/all?lock=1043",
+      "imageUrl": "/images/products/prd_pc_ram_32_ddr5.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,memory,ram/all?lock=1043",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1155,7 +1155,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,memory,ram/all?lock=1044",
+      "imageUrl": "/images/products/prd_pc_ram_64_ddr5.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,memory,ram/all?lock=1044",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1179,7 +1179,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,hardware/all?lock=1045",
+      "imageUrl": "/images/products/prd_pc_ssd_1tb_nvme.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,hardware/all?lock=1045",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1203,7 +1203,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,hardware/all?lock=1046",
+      "imageUrl": "/images/products/prd_pc_ssd_2tb_nvme.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,hardware/all?lock=1046",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1226,7 +1226,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,hardware/all?lock=1047",
+      "imageUrl": "/images/products/prd_pc_hdd_4tb.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,hardware/all?lock=1047",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1249,7 +1249,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,power,supply/all?lock=1048",
+      "imageUrl": "/images/products/prd_pc_psu_650.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,power,supply/all?lock=1048",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1272,7 +1272,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,power,supply/all?lock=1049",
+      "imageUrl": "/images/products/prd_pc_psu_750.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,power,supply/all?lock=1049",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1296,7 +1296,7 @@
       "featured": true,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,power,supply/all?lock=1050",
+      "imageUrl": "/images/products/prd_pc_psu_850.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,power,supply/all?lock=1050",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1320,7 +1320,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,computer,case/all?lock=1051",
+      "imageUrl": "/images/products/prd_pc_case_airflow.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,computer,case/all?lock=1051",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1344,7 +1344,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,computer,case/all?lock=1052",
+      "imageUrl": "/images/products/prd_pc_case_rgb.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,computer,case/all?lock=1052",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1367,7 +1367,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,cooling,water,cooling/all?lock=1053",
+      "imageUrl": "/images/products/prd_pc_cooler_air.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,cooling,water,cooling/all?lock=1053",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1390,7 +1390,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/computer,cooling,water,cooling/all?lock=1054",
+      "imageUrl": "/images/products/prd_pc_aio_240.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/computer,cooling,water,cooling/all?lock=1054",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1414,7 +1414,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,monitor,computer,monitor/all?lock=1055",
+      "imageUrl": "/images/products/prd_pc_monitor_qhd_180.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,monitor,computer,monitor/all?lock=1055",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1438,7 +1438,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,monitor,computer,monitor/all?lock=1056",
+      "imageUrl": "/images/products/prd_pc_monitor_fhd_240.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,monitor,computer,monitor/all?lock=1056",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1462,7 +1462,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,monitor,computer,monitor/all?lock=1057",
+      "imageUrl": "/images/products/prd_pc_monitor_oled.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,monitor,computer,monitor/all?lock=1057",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1485,7 +1485,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,mouse,computer,mouse/all?lock=1058",
+      "imageUrl": "/images/products/prd_pc_mouse_g502.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,mouse,computer,mouse/all?lock=1058",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1508,7 +1508,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,mouse,computer,mouse/all?lock=1059",
+      "imageUrl": "/images/products/prd_pc_mouse_viper.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,mouse,computer,mouse/all?lock=1059",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1532,7 +1532,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,mouse,computer,mouse/all?lock=1060",
+      "imageUrl": "/images/products/prd_pc_mouse_attack.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,mouse,computer,mouse/all?lock=1060",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1554,7 +1554,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,keyboard,mechanical,keyboard/all?lock=1061",
+      "imageUrl": "/images/products/prd_pc_keyboard_k552.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,keyboard,mechanical,keyboard/all?lock=1061",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1577,7 +1577,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,keyboard,mechanical,keyboard/all?lock=1062",
+      "imageUrl": "/images/products/prd_pc_keyboard_k2.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,keyboard,mechanical,keyboard/all?lock=1062",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1601,7 +1601,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,keyboard,mechanical,keyboard/all?lock=1063",
+      "imageUrl": "/images/products/prd_pc_keyboard_apex.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,keyboard,mechanical,keyboard/all?lock=1063",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1624,7 +1624,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,headset,headphones/all?lock=1064",
+      "imageUrl": "/images/products/prd_pc_headset_hyperx.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,headset,headphones/all?lock=1064",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1647,7 +1647,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,headset,headphones/all?lock=1065",
+      "imageUrl": "/images/products/prd_pc_headset_g733.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,headset,headphones/all?lock=1065",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1670,7 +1670,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,headset,headphones/all?lock=1066",
+      "imageUrl": "/images/products/prd_pc_headset_blackshark.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,headset,headphones/all?lock=1066",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1694,7 +1694,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/racing,wheel,gaming,steering,wheel/all?lock=1067",
+      "imageUrl": "/images/products/prd_pc_wheel_g29.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/racing,wheel,gaming,steering,wheel/all?lock=1067",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1717,7 +1717,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/racing,wheel,gaming,steering,wheel/all?lock=1068",
+      "imageUrl": "/images/products/prd_pc_wheel_g923.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/racing,wheel,gaming,steering,wheel/all?lock=1068",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1741,7 +1741,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/racing,wheel,gaming,steering,wheel/all?lock=1069",
+      "imageUrl": "/images/products/prd_pc_wheel_t300.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/racing,wheel,gaming,steering,wheel/all?lock=1069",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1764,7 +1764,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/game,controller,gamepad/all?lock=1070",
+      "imageUrl": "/images/products/prd_pc_gamepad_xbox.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/game,controller,gamepad/all?lock=1070",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1787,7 +1787,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/game,controller,gamepad/all?lock=1071",
+      "imageUrl": "/images/products/prd_pc_gamepad_dualsense.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/game,controller,gamepad/all?lock=1071",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1809,7 +1809,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/usb,microphone,gaming,microphone/all?lock=1072",
+      "imageUrl": "/images/products/prd_pc_mic_fifine.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/usb,microphone,gaming,microphone/all?lock=1072",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1832,7 +1832,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/usb,microphone,gaming,microphone/all?lock=1073",
+      "imageUrl": "/images/products/prd_pc_mic_quadcast.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/usb,microphone,gaming,microphone/all?lock=1073",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1855,7 +1855,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/webcam,computer,camera/all?lock=1074",
+      "imageUrl": "/images/products/prd_pc_webcam_c920.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/webcam,computer,camera/all?lock=1074",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1879,7 +1879,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/webcam,computer,camera/all?lock=1075",
+      "imageUrl": "/images/products/prd_pc_webcam_kio.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/webcam,computer,camera/all?lock=1075",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1903,7 +1903,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,laptop,laptop,computer/all?lock=1076",
+      "imageUrl": "/images/products/prd_pc_laptop_gaming.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,laptop,laptop,computer/all?lock=1076",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1927,7 +1927,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/gaming,laptop,laptop,computer/all?lock=1077",
+      "imageUrl": "/images/products/prd_pc_laptop_ultra.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/gaming,laptop,laptop,computer/all?lock=1077",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1950,7 +1950,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/wifi,router,network,router/all?lock=1078",
+      "imageUrl": "/images/products/prd_pc_router_ax.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/wifi,router,network,router/all?lock=1078",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     },
@@ -1974,7 +1974,7 @@
       "featured": false,
       "createdAt": "2026-07-22T15:30:00.000Z",
       "updatedAt": "2026-07-22T19:00:00.000Z",
-      "imageUrl": "https://loremflickr.com/900/700/wifi,router,network,router/all?lock=1079",
+      "imageUrl": "/images/products/prd_pc_mesh_ax.png",
       "imageSourceUrl": "https://loremflickr.com/900/700/wifi,router,network,router/all?lock=1079",
       "imageCredit": "LoremFlickr / Flickr Creative Commons gerçek ürün fotoğrafı"
     }
