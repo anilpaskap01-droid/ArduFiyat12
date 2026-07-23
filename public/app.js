@@ -119,7 +119,7 @@ function renderCategories() {
         >
           <span>${icons[category.icon] || '◈'}</span>
           <b>${escapeHtml(category.name)}</b>
-          <small>${productCount} ürün</small>
+          <small>${productCount} fiyatlı ürün</small>
         </button>
       `;
     })
@@ -237,11 +237,11 @@ function productCard(product) {
         </div>
 
         <div class="card-meta">
-          <span>${product.bestOffer ? (stockLabel[product.bestOffer.stock] || 'Stok bilinmiyor') : 'Teklif bekleniyor'}</span>
-          <span>${product.bestOffer ? (stale ? 'Güncelleme gerekli' : 'Doğrulandı') : 'Henüz fiyat yok'}</span>
+          <span>${stockLabel[product.bestOffer?.stock] || 'Stok bilinmiyor'}</span>
+          <span>${stale ? 'Güncelleme gerekli' : 'Doğrulandı'}</span>
         </div>
 
-        <button class="compare-btn">${product.offerCount ? 'Teklifleri Karşılaştır' : 'Ürünü İncele'} →</button>
+        <button class="compare-btn">Teklifleri Karşılaştır →</button>
       </div>
     </article>
   `;

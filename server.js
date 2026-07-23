@@ -706,6 +706,7 @@ async function apiRouter(req, res, url) {
       });
 
     const decoratedProducts = decorateProducts(db, matchingProducts, limit);
+    const productsWithOffers = decoratedProducts.filter((product) => product.offerCount > 0);
     const activeOffers = db.offers.filter((offer) => isValidPublicOffer(db, offer));
 
     const stores = db.stores
@@ -728,7 +729,7 @@ async function apiRouter(req, res, url) {
       settings: publicSettings(db),
       ads,
       categories: db.categories.filter((category) => category.active),
-      products: decoratedProducts,
+      products: productsWithOffers,
       campaigns: db.campaigns.filter((campaign) => campaign.active),
       banners: db.banners
         .filter((banner) => banner.active)
