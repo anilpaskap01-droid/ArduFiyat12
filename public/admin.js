@@ -981,18 +981,13 @@ async function pollGeminiSync({ silent = false } = {}) {
 }
 
 async function refreshOffersWithOpenAI() {
-  const openai = state.data?.integrations?.openai;
-  if (!openai?.configured) {
-    toast('Önce Render Environment bölümüne OPENAI_API_KEY ekleyin.');
-    return;
-  }
-
   const offerCount = Number(state.data?.counts?.offers || 0);
   if (!confirm(`${offerCount} teklif ChatGPT hızlı mod ile kontrol edilecek. Bu işlem API kotası kullanır. Devam edilsin mi?`)) {
     return;
   }
 
   try {
+    toast('OpenAI bağlantısı kontrol ediliyor...');
     const { job } = await api('/api/admin/offers/openai-refresh', {
       method: 'POST',
       body: '{}'
