@@ -1,0 +1,9 @@
+PC PARÇALARI GERÇEK FOTOĞRAF GÜNCELLEMESİ
+
+- PC parçaları ve oyuncu ekipmanlarının ürün kartları gerçek fotoğraf kaynaklarına bağlandı.
+- Görseller LoremFlickr/Flickr Creative Commons üzerinden çevrimiçi yüklenir.
+- Her ürün için sabit lock değeri kullanıldığı için aynı fotoğrafın korunması hedeflenir.
+- Görsel açılamazsa sitenin mevcut hata/fallback görseli devreye girer.
+- seed.json ve db.json güncellendi; Render yeniden deploy edildiğinde katalog sürümü güncellenir.
+
+Not: Fotoğraflar ürün kategorisini gerçek fotoğrafla gösterir; marka/modelin birebir resmi olmayabilir.

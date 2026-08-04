@@ -1,0 +1,1 @@
+Tüm ürün görselleri PNG formatına dönüştürüldü. Veri dosyaları ve kod içindeki görsel yolları .png olarak güncellendi.

@@ -1,0 +1,4 @@
+Mağaza bağlantıları düzeltildi:
+- Ana sayfadaki mağaza kartları tıklanınca mağazanın ana sitesi yeni sekmede açılır.
+- Ürün teklifindeki “Mağazaya Git” butonu /go/{teklif-id} üzerinden gerçek teklif bağlantısına yönlendirir.
+- Tıklama takibi korunur.

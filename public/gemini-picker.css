@@ -1,0 +1,15 @@
+.gemini-product-picker { margin-top: 14px; border: 1px solid #dbe4ff; border-radius: 16px; background: #f8faff; padding: 12px; }
+.gemini-picker-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.gemini-picker-head > div:first-child { display: grid; gap: 3px; }
+.gemini-picker-head small { color: #667085; font-size: 11px; }
+.gemini-picker-head > div:last-child { display: flex; gap: 6px; }
+.text-btn { border: 0; background: #e9efff; color: #3538cd; border-radius: 9px; padding: 7px 9px; font-size: 11px; font-weight: 800; cursor: pointer; }
+.gemini-product-list { display: grid; gap: 8px; max-height: 320px; overflow: auto; padding-right: 3px; }
+.gemini-product-option { display: grid; grid-template-columns: auto 50px 1fr; align-items: center; gap: 10px; border: 1px solid #e4e7ec; background: #fff; border-radius: 12px; padding: 8px; cursor: pointer; }
+.gemini-product-option:has(input:checked) { border-color: #6172f3; background: #eef4ff; }
+.gemini-product-option input { width: 17px; height: 17px; accent-color: #4f46e5; }
+.gemini-product-option img { width: 50px; height: 50px; object-fit: contain; border-radius: 9px; background: #f2f4f7; }
+.gemini-product-option span { display: grid; gap: 3px; min-width: 0; }
+.gemini-product-option b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gemini-product-option small { font-size: 11px; color: #667085; }
+@media (max-width: 700px) { .gemini-picker-head { align-items: flex-start; flex-direction: column; } .gemini-product-list { max-height: 260px; } }
