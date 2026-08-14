@@ -139,11 +139,10 @@ function stockSchema(stock) {
   const schemas = {
     in_stock: 'https://schema.org/InStock',
     low_stock: 'https://schema.org/LimitedAvailability',
-    out_of_stock: 'https://schema.org/OutOfStock',
-    unknown: 'https://schema.org/InStock'
+    out_of_stock: 'https://schema.org/OutOfStock'
   };
 
-  return schemas[stock] || 'https://schema.org/InStock';
+  return schemas[stock] || undefined;
 }
 
 function money(value) {
@@ -169,7 +168,7 @@ function productSlug(product) {
   );
 }
 
-function productImage(db, product, offers) {
+function productImage(product, offers) {
   const offerImage = offers.find(
     (offer) =>
       String(offer.imageUrl || '').trim()
@@ -186,7 +185,15 @@ function renderOfferRows(offers) {
   if (!offers.length) {
     return `
       <div class="empty-offers">
-        Bu ürün için şu anda aktif mağaza teklifi bulunamadı.
+        <strong>
+          Şu anda aktif mağaza teklifi bulunamadı.
+        </strong>
+
+        <p>
+          Bu ürün ArduFiyat kataloğunda bulunuyor.
+          Yeni fiyat teklifleri eklendiğinde bu sayfada
+          otomatik olarak gösterilecektir.
+        </p>
       </div>
     `;
   }
@@ -270,9 +277,8 @@ function renderProductPage({
       product.id
     );
 
-  if (!allOffers.length) {
-    return null;
-  }
+  const hasOffers =
+    allOffers.length > 0;
 
   const freeLimit = Math.max(
     1,
@@ -291,11 +297,15 @@ function renderProductPage({
   );
 
   const bestOffer =
-    allOffers.find(
-      (offer) =>
-        offer.stock !== 'out_of_stock'
-    ) ||
-    allOffers[0];
+    hasOffers
+      ? (
+          allOffers.find(
+            (offer) =>
+              offer.stock !== 'out_of_stock'
+          ) ||
+          allOffers[0]
+        )
+      : null;
 
   const prices = allOffers
     .map((offer) =>
@@ -308,10 +318,14 @@ function renderProductPage({
     );
 
   const lowPrice =
-    Math.min(...prices);
+    prices.length
+      ? Math.min(...prices)
+      : null;
 
   const highPrice =
-    Math.max(...prices);
+    prices.length
+      ? Math.max(...prices)
+      : null;
 
   const category =
     db.categories.find(
@@ -321,7 +335,6 @@ function renderProductPage({
 
   const imageRaw =
     productImage(
-      db,
       product,
       allOffers
     );
@@ -336,38 +349,25 @@ function renderProductPage({
     );
 
   const title =
-    `${product.name} Fiyatları ve Mağaza Karşılaştırma | ArduFiyat`;
+    hasOffers
+      ? `${product.name} Fiyatları ve Mağaza Karşılaştırma | ArduFiyat`
+      : `${product.name} | Fiyat Takibi | ArduFiyat`;
 
   const description =
-    `${product.name} fiyatlarını karşılaştır. ` +
-    `${allOffers.length} mağaza teklifi arasından ` +
-    `en düşük fiyat ${money(lowPrice)}. ` +
-    `Güncel fiyat ve stok bilgilerini ArduFiyat'ta incele.`;
+    hasOffers
+      ? (
+          `${product.name} fiyatlarını karşılaştır. ` +
+          `${allOffers.length} mağaza teklifi arasından ` +
+          `en düşük fiyat ${money(lowPrice)}. ` +
+          `Güncel fiyat ve stok bilgilerini ArduFiyat'ta incele.`
+        )
+      : (
+          `${product.name} için fiyatları ArduFiyat'ta takip et. ` +
+          `Yeni mağaza teklifleri ve güncel fiyatlar eklendiğinde ` +
+          `bu ürün sayfasında görüntülenecektir.`
+        );
 
-  const schemaOffers =
-    visibleOffers.map(
-      (offer) => ({
-        '@type': 'Offer',
-        priceCurrency: 'TRY',
-        price: Number(offer.price),
-        availability:
-          stockSchema(
-            offer.stock
-          ),
-        url:
-          `${origin}/go/${encodeURIComponent(
-            offer.id
-          )}`,
-        seller: {
-          '@type': 'Organization',
-          name:
-            offer.store?.name ||
-            'Mağaza'
-        }
-      })
-    );
-
-  const schema = {
+  const productSchema = {
     '@context':
       'https://schema.org',
 
@@ -403,9 +403,50 @@ function renderProductPage({
         : undefined,
 
     url:
-      canonical,
+      canonical
+  };
 
-    offers: {
+  if (hasOffers) {
+    const schemaOffers =
+      visibleOffers.map(
+        (offer) => {
+          const schemaOffer = {
+            '@type': 'Offer',
+
+            priceCurrency: 'TRY',
+
+            price:
+              Number(offer.price),
+
+            url:
+              `${origin}/go/${encodeURIComponent(
+                offer.id
+              )}`,
+
+            seller: {
+              '@type': 'Organization',
+
+              name:
+                offer.store?.name ||
+                'Mağaza'
+            }
+          };
+
+          const availability =
+            stockSchema(
+              offer.stock
+            );
+
+          if (availability) {
+            schemaOffer.availability =
+              availability;
+          }
+
+          return schemaOffer;
+        }
+      );
+
+    productSchema.offers = {
       '@type':
         'AggregateOffer',
 
@@ -413,6 +454,7 @@ function renderProductPage({
         'TRY',
 
       lowPrice,
+
       highPrice,
 
       offerCount:
@@ -420,11 +462,11 @@ function renderProductPage({
 
       offers:
         schemaOffers
-    }
-  };
+    };
+  }
 
   const schemaJson =
-    JSON.stringify(schema)
+    JSON.stringify(productSchema)
       .replace(
         /</g,
         '\\u003c'
@@ -433,7 +475,11 @@ function renderProductPage({
   const productDescription =
     escapeHtml(
       product.description ||
-      ''
+      (
+        hasOffers
+          ? description
+          : `${product.name} için güncel mağaza fiyatları takip edilmektedir.`
+      )
     );
 
   const categoryName =
@@ -472,8 +518,60 @@ function renderProductPage({
       `
       : '';
 
+  const priceBoxHtml =
+    bestOffer
+      ? `
+        <div class="best-price">
+
+          <small>
+            En düşük güncel fiyat
+          </small>
+
+          <strong>
+            ${escapeHtml(
+              money(
+                bestOffer.price
+              )
+            )}
+          </strong>
+
+          <span>
+            ${escapeHtml(
+              bestOffer.store?.name ||
+              'Mağaza'
+            )}
+            •
+            ${escapeHtml(
+              stockText(
+                bestOffer.stock
+              )
+            )}
+          </span>
+
+        </div>
+      `
+      : `
+        <div class="no-price-box">
+
+          <small>
+            Güncel fiyat
+          </small>
+
+          <strong>
+            Henüz teklif yok
+          </strong>
+
+          <span>
+            Yeni mağaza fiyatları eklendiğinde
+            burada otomatik olarak gösterilecektir.
+          </span>
+
+        </div>
+      `;
+
   return `<!doctype html>
 <html lang="tr">
+
 <head>
 
   <meta charset="utf-8">
@@ -786,6 +884,40 @@ function renderProductPage({
       font-size: 12px;
     }
 
+    .no-price-box {
+      padding: 22px;
+
+      border:
+        1px solid #e8edf3;
+
+      border-radius: 18px;
+
+      background: #f8fafc;
+    }
+
+    .no-price-box small {
+      display: block;
+      color: #667085;
+      margin-bottom: 5px;
+    }
+
+    .no-price-box strong {
+      display: block;
+      color: #344054;
+      font-size: 27px;
+    }
+
+    .no-price-box span {
+      display: block;
+
+      color: #667085;
+
+      margin-top: 8px;
+
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
     .offers {
       margin-top: 32px;
 
@@ -915,9 +1047,28 @@ function renderProductPage({
     }
 
     .empty-offers {
-      padding: 25px;
+      padding: 34px 20px;
       text-align: center;
       color: #667085;
+      background: #f8fafc;
+      border-radius: 16px;
+    }
+
+    .empty-offers strong {
+      display: block;
+      color: #344054;
+      font-size: 18px;
+    }
+
+    .empty-offers p {
+      margin:
+        8px auto 0;
+
+      max-width: 560px;
+
+      line-height: 1.6;
+
+      font-size: 13px;
     }
 
     .source-note {
@@ -1090,44 +1241,16 @@ function renderProductPage({
           }
 
           <span>
-            ${allOffers.length}
-            mağaza teklifi
-          </span>
-
-        </div>
-
-        <div class="best-price">
-
-          <small>
-            En düşük güncel fiyat
-          </small>
-
-          <strong>
-            ${escapeHtml(
-              money(
-                bestOffer.price
-              )
-            )}
-          </strong>
-
-          <span>
             ${
-              escapeHtml(
-                bestOffer.store?.name ||
-                'Mağaza'
-              )
-            }
-            •
-            ${
-              escapeHtml(
-                stockText(
-                  bestOffer.stock
-                )
-              )
+              hasOffers
+                ? `${allOffers.length} mağaza teklifi`
+                : 'Fiyat takibinde'
             }
           </span>
 
         </div>
+
+        ${priceBoxHtml}
 
       </div>
 
@@ -1143,8 +1266,11 @@ function renderProductPage({
         </h2>
 
         <span>
-          ${allOffers.length}
-          teklif bulundu
+          ${
+            hasOffers
+              ? `${allOffers.length} teklif bulundu`
+              : 'Henüz teklif yok'
+          }
         </span>
 
       </div>
@@ -1171,6 +1297,7 @@ function renderProductPage({
   </footer>
 
 </body>
+
 </html>`;
 }
 
@@ -1190,17 +1317,9 @@ function renderSitemap({
   });
 
   for (const product of db.products) {
+    // SADECE aktif ürün şartı var.
+    // Teklif olup olmamasına artık bakmıyoruz.
     if (!product?.active) {
-      continue;
-    }
-
-    const offers =
-      getProductOffers(
-        db,
-        product.id
-      );
-
-    if (!offers.length) {
       continue;
     }
 
@@ -1218,6 +1337,7 @@ function renderSitemap({
 
       lastmod:
         product.updatedAt ||
+        product.createdAt ||
         db.meta?.updatedAt ||
         ''
     });
@@ -1347,19 +1467,36 @@ export function getSeoResponse(
       body:
         `<!doctype html>
 <html lang="tr">
+
 <head>
+
   <meta charset="utf-8">
-  <meta name="robots" content="noindex">
-  <title>Ürün bulunamadı | ArduFiyat</title>
+
+  <meta
+    name="robots"
+    content="noindex"
+  >
+
+  <title>
+    Ürün bulunamadı | ArduFiyat
+  </title>
+
 </head>
+
 <body>
-  <h1>Ürün bulunamadı</h1>
+
+  <h1>
+    Ürün bulunamadı
+  </h1>
+
   <p>
     <a href="/">
       ArduFiyat ana sayfasına dön
     </a>
   </p>
+
 </body>
+
 </html>`,
 
       headers: {
@@ -1378,41 +1515,6 @@ export function getSeoResponse(
       db,
       product
     });
-
-  if (!page) {
-    return {
-      status: 404,
-
-      body:
-        `<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8">
-  <meta name="robots" content="noindex">
-  <title>Teklif bulunamadı | ArduFiyat</title>
-</head>
-<body>
-  <h1>
-    Bu ürün için aktif teklif bulunamadı.
-  </h1>
-
-  <p>
-    <a href="/">
-      ArduFiyat ana sayfasına dön
-    </a>
-  </p>
-</body>
-</html>`,
-
-      headers: {
-        'Content-Type':
-          'text/html; charset=utf-8',
-
-        'Cache-Control':
-          'no-cache'
-      }
-    };
-  }
 
   return {
     status: 200,
