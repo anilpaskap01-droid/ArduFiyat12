@@ -33,6 +33,7 @@ import {
 } from './src/gemini-price-sync.js';
 import { syncAllProductImages, ensureLocalProductImage, resolveLocalProductImage } from './src/image-sync.js';
 import { firstOfferUrlIssue, isDirectOfferUrl } from './src/offer-url.js';
+import { getSeoResponse } from './src/seo.js';
 
 loadEnv();
 
@@ -1314,6 +1315,18 @@ function serveFile(res, file) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+
+    // SEO: dinamik sitemap.xml ve /urun/... ürün sayfaları
+    const seoResponse = getSeoResponse(req, url);
+
+    if (seoResponse) {
+      return send(
+        res,
+        seoResponse.status,
+        req.method === 'HEAD' ? '' : seoResponse.body,
+        seoResponse.headers
+      );
+    }
 
     if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/go/') || url.pathname.startsWith('/ad/')) {
       return await apiRouter(req, res, url);
