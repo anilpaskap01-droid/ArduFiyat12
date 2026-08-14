@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-
-Disallow: /admin
-
-Sitemap: https://ardufiyat12.onrender.com/sitemap.xml
