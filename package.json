@@ -18,7 +18,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@google/genai": "^2.13.0",
+    "@google/genai": "^2.14.0"
     "google-auth-library": "^10.9.0",
     "nodemailer": "^9.0.3",
     "pg": "^8.16.3"
