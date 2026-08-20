@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
 
-Disallow: /admin
-
-Sitemap: https://ardufiyat12.onrender.com/sitemap.xml
+Sitemap: https://ardufiyat12-tr.up.railway.app/sitemap.xml
