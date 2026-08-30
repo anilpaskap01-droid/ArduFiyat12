@@ -13,13 +13,13 @@ const root = path.resolve(__dirname, '..');
 const bundledDataDirectory = path.join(root, 'data');
 const bundledDatabaseFile = path.join(bundledDataDirectory, 'db.json');
 const databaseUrl = String(process.env.DATABASE_URL || '').trim();
-const configuredDataDirectory = databaseUrl ? '' : String(process.env.ARDUFIYAT_DATA_DIR || '').trim();
+const configuredDataDirectory = String(process.env.ARDUFIYAT_DATA_DIR || '').trim();
 
 export const dataDirectory = configuredDataDirectory
   ? path.resolve(root, configuredDataDirectory)
   : bundledDataDirectory;
-export const persistentDataPathConfigured = Boolean(databaseUrl || configuredDataDirectory);
-export const postgresConfigured = Boolean(databaseUrl);
+export let persistentDataPathConfigured = Boolean(databaseUrl || configuredDataDirectory);
+export let postgresConfigured = Boolean(databaseUrl);
 export const dataFile = path.join(dataDirectory, 'db.json');
 export const seedFile = path.join(bundledDataDirectory, 'seed.json');
 
@@ -28,8 +28,33 @@ let memoryDatabase = null;
 let pool = null;
 let initialization = null;
 
+function postgresErrorSummary(error) {
+  const code = error?.code ? ` [${error.code}]` : '';
+  const message = String(error?.message || error || 'Bilinmeyen PostgreSQL hatası')
+    .replace(/postgres(?:ql)?:\/\/[^\s@]+@/gi, 'postgresql://***@');
+  return `${message}${code}`;
+}
+
+async function disablePostgresAndFallback(error) {
+  console.error(`PostgreSQL bağlantısı kurulamadı: ${postgresErrorSummary(error)}`);
+  console.warn('ArduFiyat çökmeden devam edecek ve yerel JSON veritabanına geçecek.');
+
+  if (pool) {
+    try {
+      await pool.end();
+    } catch {
+      // Bağlantı zaten kapalı olabilir.
+    }
+  }
+
+  pool = null;
+  postgresConfigured = false;
+  persistentDataPathConfigured = Boolean(configuredDataDirectory);
+  return loadLocalDatabase();
+}
+
 async function persistDatabase(nextDb) {
-  if (postgresConfigured) {
+  if (postgresConfigured && pool) {
     await pool.query(
       `INSERT INTO app_state (id, data, updated_at) VALUES ('main', $1::jsonb, NOW())
        ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()`,
@@ -38,6 +63,7 @@ async function persistDatabase(nextDb) {
     memoryDatabase = structuredClone(nextDb);
     return;
   }
+
   await fs.promises.mkdir(dataDirectory, { recursive: true });
   const temp = `${dataFile}.${process.pid}.${Date.now()}.tmp`;
   await fs.promises.writeFile(temp, `${JSON.stringify(nextDb, null, 2)}\n`, 'utf8');
@@ -140,7 +166,6 @@ function mergeMissingSeedRecords(db, seed) {
       }
     }
 
-    // Katalog sürümü değiştiğinde mevcut ürünlerin görsel yollarını da yenile.
     if (collection === 'products') {
       const incomingById = new Map(incoming.filter((item) => item?.id).map((item) => [item.id, item]));
       for (const currentItem of current) {
@@ -158,7 +183,6 @@ function mergeMissingSeedRecords(db, seed) {
     db[collection] = current;
   }
 
-  // Yeni katalog sürümünü kaydet; mevcut admin ayarlarını ve kullanıcı verilerini koru.
   const seedVersion = seed?.meta?.catalogVersion || seed?.meta?.version || null;
   if (seedVersion && db.meta.catalogVersion !== seedVersion) {
     db.meta.catalogVersion = seedVersion;
@@ -265,38 +289,54 @@ function loadLocalDatabase() {
 
 export async function initializeDatabase(options = {}) {
   if (initialization) return initialization;
+
   initialization = (async () => {
     if (!postgresConfigured) return loadLocalDatabase();
-    pool = options.pool || new pg.Pool({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } });
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS app_state (
-        id TEXT PRIMARY KEY,
-        data JSONB NOT NULL,
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
-    let result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
-    if (result.rowCount === 0) {
-      const initialFile = fs.existsSync(bundledDatabaseFile) ? bundledDatabaseFile : seedFile;
-      const initialDb = JSON.parse(await fs.promises.readFile(initialFile, 'utf8'));
-      await pool.query(
-        `INSERT INTO app_state (id, data) VALUES ('main', $1::jsonb) ON CONFLICT (id) DO NOTHING`,
-        [JSON.stringify(initialDb)]
-      );
-      result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
+
+    try {
+      pool = options.pool || new pg.Pool({
+        connectionString: databaseUrl,
+        ssl: { rejectUnauthorized: false },
+        connectionTimeoutMillis: 8000
+      });
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS app_state (
+          id TEXT PRIMARY KEY,
+          data JSONB NOT NULL,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+
+      let result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
+      if (result.rowCount === 0) {
+        const initialFile = fs.existsSync(bundledDatabaseFile) ? bundledDatabaseFile : seedFile;
+        const initialDb = JSON.parse(await fs.promises.readFile(initialFile, 'utf8'));
+        await pool.query(
+          `INSERT INTO app_state (id, data) VALUES ('main', $1::jsonb) ON CONFLICT (id) DO NOTHING`,
+          [JSON.stringify(initialDb)]
+        );
+        result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
+      }
+
+      memoryDatabase = result.rows[0].data;
+      const seed = JSON.parse(await fs.promises.readFile(seedFile, 'utf8'));
+      const shapeChanged = migrateDatabaseShape(memoryDatabase);
+      const catalogChanged = mergeMissingSeedRecords(memoryDatabase, seed);
+      const retiredCatalogChanged = pruneRetiredCatalog(memoryDatabase, seed);
+      const offersChanged = pruneInvalidOffers(memoryDatabase, seed);
+
+      if (shapeChanged || catalogChanged || retiredCatalogChanged || offersChanged) {
+        memoryDatabase.meta.updatedAt = new Date().toISOString();
+        await persistDatabase(memoryDatabase);
+      }
+
+      return memoryDatabase;
+    } catch (error) {
+      return disablePostgresAndFallback(error);
     }
-    memoryDatabase = result.rows[0].data;
-    const seed = JSON.parse(await fs.promises.readFile(seedFile, 'utf8'));
-    const shapeChanged = migrateDatabaseShape(memoryDatabase);
-    const catalogChanged = mergeMissingSeedRecords(memoryDatabase, seed);
-    const retiredCatalogChanged = pruneRetiredCatalog(memoryDatabase, seed);
-    const offersChanged = pruneInvalidOffers(memoryDatabase, seed);
-    if (shapeChanged || catalogChanged || retiredCatalogChanged || offersChanged) {
-      memoryDatabase.meta.updatedAt = new Date().toISOString();
-      await persistDatabase(memoryDatabase);
-    }
-    return memoryDatabase;
   })();
+
   return initialization;
 }
 
