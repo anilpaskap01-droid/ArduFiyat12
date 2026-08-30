@@ -48,3 +48,5 @@ SMTP_PASS=
 GOOGLE_CLIENT_ID=
 GEMINI_API_KEY=
 ```
+
+<!-- Railway redeploy trigger -->
