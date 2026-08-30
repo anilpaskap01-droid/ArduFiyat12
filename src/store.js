@@ -14,12 +14,13 @@ const bundledDataDirectory = path.join(root, 'data');
 const bundledDatabaseFile = path.join(bundledDataDirectory, 'db.json');
 const databaseUrl = String(process.env.DATABASE_URL || '').trim();
 const configuredDataDirectory = String(process.env.ARDUFIYAT_DATA_DIR || '').trim();
+const allowLocalDatabaseFallback = String(process.env.ALLOW_LOCAL_DB_FALLBACK || '').toLowerCase() === 'true';
 
 export const dataDirectory = configuredDataDirectory
   ? path.resolve(root, configuredDataDirectory)
   : bundledDataDirectory;
-export let persistentDataPathConfigured = Boolean(databaseUrl || configuredDataDirectory);
-export let postgresConfigured = Boolean(databaseUrl);
+export const persistentDataPathConfigured = Boolean(databaseUrl || configuredDataDirectory);
+export const postgresConfigured = Boolean(databaseUrl);
 export const dataFile = path.join(dataDirectory, 'db.json');
 export const seedFile = path.join(bundledDataDirectory, 'seed.json');
 
@@ -35,26 +36,54 @@ function postgresErrorSummary(error) {
   return `${message}${code}`;
 }
 
-async function disablePostgresAndFallback(error) {
-  console.error(`PostgreSQL bağlantısı kurulamadı: ${postgresErrorSummary(error)}`);
-  console.warn('ArduFiyat çökmeden devam edecek ve yerel JSON veritabanına geçecek.');
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  if (pool) {
+function createPostgresPool() {
+  return new pg.Pool({
+    connectionString: databaseUrl,
+    ssl: { rejectUnauthorized: false },
+    max: Math.max(1, Number(process.env.DATABASE_POOL_MAX || 5)),
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 12_000,
+    keepAlive: true
+  });
+}
+
+async function connectPostgresWithRetry(options = {}) {
+  pool = options.pool || createPostgresPool();
+  const attempts = options.pool ? 1 : Math.max(1, Number(process.env.DATABASE_CONNECT_ATTEMPTS || 5));
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      await pool.end();
-    } catch {
-      // Bağlantı zaten kapalı olabilir.
+      await pool.query('SELECT 1');
+      return pool;
+    } catch (error) {
+      lastError = error;
+      if (attempt >= attempts) break;
+
+      const waitMs = Math.min(8_000, 1_500 * attempt);
+      console.warn(
+        `PostgreSQL bağlantı denemesi ${attempt}/${attempts} başarısız: ${postgresErrorSummary(error)}. ${waitMs}ms sonra tekrar denenecek.`
+      );
+      await sleep(waitMs);
     }
   }
 
+  try {
+    await pool.end();
+  } catch {
+    // Bağlantı havuzu zaten kapalı olabilir.
+  }
   pool = null;
-  postgresConfigured = false;
-  persistentDataPathConfigured = Boolean(configuredDataDirectory);
-  return loadLocalDatabase();
+  throw lastError || new Error('PostgreSQL bağlantısı kurulamadı.');
 }
 
 async function persistDatabase(nextDb) {
-  if (postgresConfigured && pool) {
+  if (postgresConfigured) {
+    if (!pool) throw new Error('PostgreSQL bağlantı havuzu hazır değil.');
     await pool.query(
       `INSERT INTO app_state (id, data, updated_at) VALUES ('main', $1::jsonb, NOW())
        ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()`,
@@ -287,6 +316,48 @@ function loadLocalDatabase() {
   }
 }
 
+async function initializePostgresDatabase(options = {}) {
+  await connectPostgresWithRetry(options);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS app_state (
+      id TEXT PRIMARY KEY,
+      data JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+
+  let result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
+  if (result.rowCount === 0) {
+    const initialFile = fs.existsSync(bundledDatabaseFile) ? bundledDatabaseFile : seedFile;
+    const initialDb = JSON.parse(await fs.promises.readFile(initialFile, 'utf8'));
+    await pool.query(
+      `INSERT INTO app_state (id, data) VALUES ('main', $1::jsonb) ON CONFLICT (id) DO NOTHING`,
+      [JSON.stringify(initialDb)]
+    );
+    result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
+  }
+
+  if (!result.rows[0]?.data) {
+    throw new Error('PostgreSQL app_state/main kaydı okunamadı.');
+  }
+
+  memoryDatabase = result.rows[0].data;
+  const seed = JSON.parse(await fs.promises.readFile(seedFile, 'utf8'));
+  const shapeChanged = migrateDatabaseShape(memoryDatabase);
+  const catalogChanged = mergeMissingSeedRecords(memoryDatabase, seed);
+  const retiredCatalogChanged = pruneRetiredCatalog(memoryDatabase, seed);
+  const offersChanged = pruneInvalidOffers(memoryDatabase, seed);
+
+  if (shapeChanged || catalogChanged || retiredCatalogChanged || offersChanged) {
+    memoryDatabase.meta.updatedAt = new Date().toISOString();
+    await persistDatabase(memoryDatabase);
+  }
+
+  console.log('PostgreSQL bağlantısı hazır. app_state/main aktif.');
+  return memoryDatabase;
+}
+
 export async function initializeDatabase(options = {}) {
   if (initialization) return initialization;
 
@@ -294,46 +365,19 @@ export async function initializeDatabase(options = {}) {
     if (!postgresConfigured) return loadLocalDatabase();
 
     try {
-      pool = options.pool || new pg.Pool({
-        connectionString: databaseUrl,
-        ssl: { rejectUnauthorized: false },
-        connectionTimeoutMillis: 8000
-      });
-
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS app_state (
-          id TEXT PRIMARY KEY,
-          data JSONB NOT NULL,
-          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-      `);
-
-      let result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
-      if (result.rowCount === 0) {
-        const initialFile = fs.existsSync(bundledDatabaseFile) ? bundledDatabaseFile : seedFile;
-        const initialDb = JSON.parse(await fs.promises.readFile(initialFile, 'utf8'));
-        await pool.query(
-          `INSERT INTO app_state (id, data) VALUES ('main', $1::jsonb) ON CONFLICT (id) DO NOTHING`,
-          [JSON.stringify(initialDb)]
-        );
-        result = await pool.query("SELECT data FROM app_state WHERE id = 'main'");
-      }
-
-      memoryDatabase = result.rows[0].data;
-      const seed = JSON.parse(await fs.promises.readFile(seedFile, 'utf8'));
-      const shapeChanged = migrateDatabaseShape(memoryDatabase);
-      const catalogChanged = mergeMissingSeedRecords(memoryDatabase, seed);
-      const retiredCatalogChanged = pruneRetiredCatalog(memoryDatabase, seed);
-      const offersChanged = pruneInvalidOffers(memoryDatabase, seed);
-
-      if (shapeChanged || catalogChanged || retiredCatalogChanged || offersChanged) {
-        memoryDatabase.meta.updatedAt = new Date().toISOString();
-        await persistDatabase(memoryDatabase);
-      }
-
-      return memoryDatabase;
+      return await initializePostgresDatabase(options);
     } catch (error) {
-      return disablePostgresAndFallback(error);
+      const summary = postgresErrorSummary(error);
+      console.error(`PostgreSQL başlatılamadı: ${summary}`);
+
+      if (allowLocalDatabaseFallback) {
+        console.warn('ALLOW_LOCAL_DB_FALLBACK=true olduğu için yerel JSON veritabanına geçiliyor.');
+        return loadLocalDatabase();
+      }
+
+      throw new Error(
+        `PostgreSQL bağlantısı kurulamadı: ${summary}. DATABASE_URL değerini Supabase Connect > Session pooler bağlantısıyla güncelleyin. Yerel JSON fallback güvenlik için devre dışı.`
+      );
     }
   })();
 
@@ -342,7 +386,7 @@ export async function initializeDatabase(options = {}) {
 
 export function ensureDatabase() {
   if (postgresConfigured) {
-    if (!memoryDatabase) throw new Error('PostgreSQL veritabanı henüz hazırlanmadı.');
+    if (!memoryDatabase || !pool) throw new Error('PostgreSQL veritabanı henüz hazırlanmadı.');
     return;
   }
   if (!memoryDatabase) loadLocalDatabase();
