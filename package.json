@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --watch --import ./src/daily-gemini-auto.js enhanced-server.js",
-    "start": "node --import ./src/daily-gemini-auto.js enhanced-server.js",
+    "dev": "node --watch --import ./src/daily-gemini-auto.js mega-server.js",
+    "start": "node --import ./src/daily-gemini-auto.js mega-server.js",
     "reset": "node scripts/reset-db.js",
     "import:offers": "node scripts/import-offers.js",
     "migrate:data": "node scripts/migrate-data.js",
