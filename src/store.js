@@ -40,10 +40,33 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function postgresSslConfig() {
+  if (!databaseUrl) return false;
+
+  const sslMode = String(process.env.PGSSLMODE || '').trim().toLowerCase();
+  if (sslMode === 'disable') return false;
+  if (sslMode === 'require' || sslMode === 'prefer') return { rejectUnauthorized: false };
+
+  try {
+    const hostname = new URL(databaseUrl).hostname.toLowerCase();
+    if (
+      hostname === 'postgres.railway.internal' ||
+      hostname.endsWith('.railway.internal') ||
+      hostname.endsWith('.internal')
+    ) {
+      return false;
+    }
+  } catch {
+    // Geçersiz bağlantı adresi pg tarafından ayrıntılı olarak raporlanır.
+  }
+
+  return { rejectUnauthorized: false };
+}
+
 function createPostgresPool() {
   return new pg.Pool({
     connectionString: databaseUrl,
-    ssl: { rejectUnauthorized: false },
+    ssl: postgresSslConfig(),
     max: Math.max(1, Number(process.env.DATABASE_POOL_MAX || 5)),
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 12_000,
@@ -376,7 +399,7 @@ export async function initializeDatabase(options = {}) {
       }
 
       throw new Error(
-        `PostgreSQL bağlantısı kurulamadı: ${summary}. DATABASE_URL değerini Supabase Connect > Session pooler bağlantısıyla güncelleyin. Yerel JSON fallback güvenlik için devre dışı.`
+        `PostgreSQL bağlantısı kurulamadı: ${summary}. DATABASE_URL bağlantı bilgisini kontrol edin. Yerel JSON fallback güvenlik için devre dışı.`
       );
     }
   })();
