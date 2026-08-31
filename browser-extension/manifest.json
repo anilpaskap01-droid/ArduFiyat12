@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "ArduFiyat Fiyat Yardımcısı",
+  "version": "1.0.0",
+  "description": "Elektronik ürün sayfalarında ArduFiyat üzerinden alternatif fiyatları kontrol eder.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://*/*", "http://*/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "ArduFiyat" },
+  "content_scripts": [{
+    "matches": ["https://*/*", "http://*/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }]
+}
