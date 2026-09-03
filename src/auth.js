@@ -3,8 +3,13 @@ import crypto from 'node:crypto';
 const b64 = (value) => Buffer.from(value).toString('base64url');
 const unb64 = (value) => Buffer.from(value, 'base64url').toString('utf8');
 
+let runtimeSecret = null;
+
 function secret() {
-  return process.env.TOKEN_SECRET || 'dev-only-secret-change-me';
+  const configured = String(process.env.TOKEN_SECRET || '').trim();
+  if (configured) return configured;
+  if (!runtimeSecret) runtimeSecret = crypto.randomBytes(48).toString('hex');
+  return runtimeSecret;
 }
 
 export function signToken(payload, ttlSeconds = 60 * 60 * 8) {
