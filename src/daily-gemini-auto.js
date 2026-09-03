@@ -1,9 +1,13 @@
-import { readDb } from './store.js';
+import { readDb, mutateDb } from './store.js';
 import { getGeminiPriceSyncJob, startGeminiPriceSync } from './gemini-price-sync.js';
+import { catalogV14 } from './catalog-v14.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const CHECK_INTERVAL_MS = 60 * 60 * 1000;
 const STARTUP_DELAY_MS = 60 * 1000;
+const CATALOG_STARTUP_DELAY_MS = 5 * 1000;
+const CATALOG_RETRY_DELAY_MS = 10 * 1000;
+const CATALOG_MAX_RETRIES = 12;
 
 function isEnabled() {
   return String(process.env.AUTO_GEMINI_DAILY_SYNC ?? 'true').toLowerCase() !== 'false';
@@ -51,6 +55,54 @@ function maybeRunDailyGeminiSync() {
     console.error('Günlük Gemini stok/fiyat kontrolü başlatılamadı:', error?.message || error);
   }
 }
+
+async function mergeExpandedCatalog(attempt = 0) {
+  try {
+    const result = await mutateDb((db) => {
+      if (!Array.isArray(db.categories)) db.categories = [];
+      if (!Array.isArray(db.products)) db.products = [];
+      if (!db.meta || typeof db.meta !== 'object') db.meta = {};
+
+      const categoryIds = new Set(db.categories.map((item) => item?.id).filter(Boolean));
+      const productIds = new Set(db.products.map((item) => item?.id).filter(Boolean));
+      let categoriesAdded = 0;
+      let productsAdded = 0;
+
+      for (const category of catalogV14.categories) {
+        if (!categoryIds.has(category.id)) {
+          db.categories.push(structuredClone(category));
+          categoryIds.add(category.id);
+          categoriesAdded += 1;
+        }
+      }
+
+      for (const product of catalogV14.products) {
+        if (!productIds.has(product.id)) {
+          db.products.push(structuredClone(product));
+          productIds.add(product.id);
+          productsAdded += 1;
+        }
+      }
+
+      db.meta.expandedCatalogVersion = `v${catalogV14.version}`;
+      return { categoriesAdded, productsAdded, totalProducts: db.products.length };
+    });
+
+    if (result.categoriesAdded || result.productsAdded) {
+      console.log(
+        `Geniş katalog eklendi: +${result.categoriesAdded} kategori, +${result.productsAdded} ürün. Toplam ürün: ${result.totalProducts}.`
+      );
+    }
+  } catch (error) {
+    if (attempt < CATALOG_MAX_RETRIES) {
+      setTimeout(() => mergeExpandedCatalog(attempt + 1), CATALOG_RETRY_DELAY_MS).unref();
+      return;
+    }
+    console.error('Geniş katalog veritabanına eklenemedi:', error?.message || error);
+  }
+}
+
+setTimeout(() => mergeExpandedCatalog(), CATALOG_STARTUP_DELAY_MS).unref();
 
 if (isEnabled()) {
   setTimeout(maybeRunDailyGeminiSync, STARTUP_DELAY_MS).unref();
